@@ -373,408 +373,190 @@ If you want next step, I can guide you:
 Good direction — but don’t jump into patterns yet.
 
 ======================================================================================================================================
-
-Good constraint. What you’re aiming for is **structural reuse + object reuse**, not pattern-heavy abstraction. I’ll reshape the spec so you can:
-
-* reuse panels/components
-* swap them (add/remove) instead of show/hide
-* still keep `CardLayout.show()` only at high level
-
+```
++------------------------------------------------------+
+| Top Toolbar                                          | //Top panel
+| [Symmetric] [Asymmetric] [Hash]    [Reset]           |
++------------------------------------------------------+
+|                                                      |
+| Algorithm: [AES v]                                   |
+| Mode:      [CBC v]                                   |
+| Padding:   [PKCS5Padding v]                          |
+| Key:       [Import]                                  |
+| IV:        [Generate]                                |
+|                                                      |
+| [ Advanced ▼ ]                                       |
+|                                                      |
++------------------------------------------------------+
+| Input Type:                         (• Text) (• File)|//Center panel
+|                                                      |
+| Plain Text:                                          |
+| +--------------------------------------------------+ |
+| |                                                  | |
+| |                                                  | |
+| +--------------------------------------------------+ |
+|                                                      |
++------------------------------------------------------+
+| Console:                          [Encrypt] [Decrypt]| //Bottom panel
+| +--------------------------------------------------+ |
+| |                                                  | |
+| +--------------------------------------------------+ |
++------------------------------------------------------+
+```
 ---
+```
++----------------------------------------------------------------------------------+
+| Symmetric Encryption                                              🌐 EN | Reset |
++----------------------------------------------------------------------------------+
 
-# 🧠 CORE IDEA (your approach clarified)
++-------------------- Basic Configuration ----------------------------------------+
+| Algorithm:      [ AES ▼ ]                                                       |
+| Mode:           [ CBC ▼ ]                                                       |
+| Padding:        [ PKCS5Padding ▼ ]                                              |
+|                                                                                  |
+| Key Source:    (• Generate) (• Import)                                          |
+| Key Size:      (•128) (•192) (•256) ( ) Custom [____] bit                       |
+| Secret Key:    [ Generate Key ] [ Import Key ] [ Export Key ]                   |
+|                                                                                  |
+| IV / Nonce:    [ Auto Generate ] [ Manual Input______________ ]                 |
+| Encoding:      [ Base64 ▼ ]                                                     |
++----------------------------------------------------------------------------------+
 
-Instead of:
++-------------------- Advanced ▼ -------------------------------------------------+
+| Salt:           [____________________]                                           |
+| Iteration:      [____________________]                                           |
+| Provider:       [ Default ▼ ]                                                    |
+| Output Charset: [ UTF-8 ▼ ]                                                      |
++----------------------------------------------------------------------------------+
 
-> many components → hide/show
++-------------------- Input ------------------------------------------------------+
+| Input Type:   (• Text) (• File)                                                 |
+|                                                                                  |
+| Plain Text:                                                                     |
+| +------------------------------------------------------------------------------+ |
+| |                                                                              | |
+| |                                                                              | |
+| +------------------------------------------------------------------------------+ |
+|                                                                                  |
+| File: [ Choose File ]                                                           |
++----------------------------------------------------------------------------------+
 
-You will do:
++-------------------- Output -----------------------------------------------------+
+| Output Format: (• Base64) (• HEX) (• Binary File)                               |
+| Save Output:  [ Export File ]                                                   |
+|                                                                                  |
+| Result:                                                                          |
+| +------------------------------------------------------------------------------+ |
+| |                                                                              | |
+| +------------------------------------------------------------------------------+ |
++----------------------------------------------------------------------------------+
 
-> **few reusable panels → replace content inside them**
-
-So think like:
-
-```text
-topPanel (CardLayout)
-  ├── configContainer (fixed structure)
-        ├── algorithmPanel (replace content)
-        ├── keyPanel (replace content)
-        ├── optionPanel (replace content)
+|                                              [ Encrypt ] [ Decrypt ] [ Clear ] |
++----------------------------------------------------------------------------------+
 ```
 
 ---
-
-# 🔷 UPDATED OVERALL STRUCTURE
-
-```id="layout1"
-JFrame
- └── rootPanel (BorderLayout)
-      ├── topPanel (CardLayout)
-      │     ├── symmetricConfigPanel
-      │     ├── asymmetricConfigPanel
-      │     └── hashConfigPanel
-      │
-      ├── centerPanel (CardLayout)
-      │     ├── textInputPanel
-      │     └── fileInputPanel
-      │
-      └── bottomPanel (BorderLayout)
 ```
++----------------------------------------------------------------------------------+
+| Asymmetric Encryption                                           🌐 EN | Reset   |
++----------------------------------------------------------------------------------+
 
----
++-------------------- Basic Configuration ----------------------------------------+
+| Algorithm:      [ RSA ▼ ]                                                       |
+| Transformation: [ RSA/ECB/OAEPWithSHA-256AndMGF1Padding ▼ ]                     |
+| Key Size:       (•1024) (•2048) (•4096) ( ) Custom [____] bit                   |
+|                                                                                  |
+| Key Pair:      [ Generate Key Pair ]                                            |
+|                                                                                  |
+| Public Key:    [ Import ] [ Export ]                                            |
+| Private Key:   [ Import ] [ Export ]                                            |
+|                                                                                  |
+| Key Format:    [ PEM ▼ ]                                                        |
++----------------------------------------------------------------------------------+
 
-# 🔷 1. REUSABLE PANEL DESIGN (IMPORTANT)
++-------------------- Hybrid Encryption ------------------------------------------+
+| Hybrid Mode:  [ ] Enable Hybrid Encryption                                      |
+|                                                                                  |
+| RSA Usage:     Encrypt short sensitive data / symmetric key                      |
+| Symmetric Algo:[ AES ▼ ]                                                        |
+| Symmetric Mode:[ GCM ▼ ]                                                        |
+| AES Key Size: [ 256 ▼ ]                                                         |
+|                                                                                  |
+| Output Package:                                                                 |
+| [ ] Encrypted AES Key                                                           |
+| [ ] Encrypted File                                                              |
+| [ ] Metadata JSON                                                               |
++----------------------------------------------------------------------------------+
 
-Instead of many small components everywhere, define **3 reusable blocks**
++-------------------- Input ------------------------------------------------------+
+| Input Type:   (• Text) (• File)                                                 |
+|                                                                                  |
+| Plain Text:                                                                     |
+| +------------------------------------------------------------------------------+ |
+| |                                                                              | |
+| +------------------------------------------------------------------------------+ |
+|                                                                                  |
+| File: [ Choose File ]                                                           |
++----------------------------------------------------------------------------------+
 
----
++-------------------- Output -----------------------------------------------------+
+| Output Format: (• Base64) (• HEX) (• Binary File)                               |
+| Save Output:  [ Export File ]                                                   |
+|                                                                                  |
+| Result:                                                                          |
+| +------------------------------------------------------------------------------+ |
+| |                                                                              | |
+| +------------------------------------------------------------------------------+ |
++----------------------------------------------------------------------------------+
 
-## 🔹 1.1 FieldRow (Reusable Unit)
-
-👉 You will reuse this everywhere
-
-```id="layout2"
-JPanel pnlFieldRow (BorderLayout)
-
-WEST  → JLabel lblTitle
-CENTER→ JComponent inputComponent
-EAST  → JPanel pnlActions (optional buttons)
+|                                              [ Encrypt ] [ Decrypt ] [ Clear ] |
++----------------------------------------------------------------------------------+
 ```
-
 ---
-
-### Example reuse:
-
-**Algorithm row**
-
-* lbl: "Algorithm"
-* input: `JComboBox`
-* actions: none
-
-**Key row**
-
-* lbl: "Key"
-* input: `JTextField`
-* actions: [Import | Export | Generate]
-
----
-
-## 🔹 1.2 SectionPanel (Group of FieldRow)
-
-```id="layout3"
-JPanel pnlSection (BoxLayout Y_AXIS)
-
-+ multiple pnlFieldRow
 ```
++----------------------------------------------------------------------------------+
+| Hash Generator                                                  🌐 EN | Reset   |
++----------------------------------------------------------------------------------+
 
-Used for:
++-------------------- Hash Configuration -----------------------------------------+
+| Algorithm:      [ SHA-256 ▼ ]                                                   |
+|                                                                                  |
+| Output Format: (• HEX) (• Base64) (• Binary)                                    |
+| Letter Case:   (• Lowercase) (• Uppercase)                                      |
+|                                                                                  |
+| Salt Option:   [ ] Enable Salt                                                  |
+| Salt:          [___________________________] [ Generate ]                        |
+|                                                                                  |
+| HMAC Mode:     [ ] Enable HMAC                                                  |
+| Secret Key:    [ Import ] [ Generate ] [ Export ]                               |
++----------------------------------------------------------------------------------+
 
-* Algorithm section
-* Key section
-* Options section
++-------------------- Input ------------------------------------------------------+
+| Input Type:   (• Text) (• File)                                                 |
+|                                                                                  |
+| Plain Text:                                                                     |
+| +------------------------------------------------------------------------------+ |
+| |                                                                              | |
+| +------------------------------------------------------------------------------+ |
+|                                                                                  |
+| File: [ Choose File ]                                                           |
++----------------------------------------------------------------------------------+
 
----
++-------------------- Hash Output ------------------------------------------------+
+| Hash Result:                                                                    |
+| +------------------------------------------------------------------------------+ |
+| |                                                                              | |
+| +------------------------------------------------------------------------------+ |
+|                                                                                  |
+| [ Copy ] [ Export File ]                                                        |
++----------------------------------------------------------------------------------+
 
-## 🔹 1.3 ConfigPanel (Main container per mode)
++-------------------- Verification ------------------------------------------------+
+| Verify Hash:                                                                    |
+| Input Hash: [______________________________________________________________]    |
+| Status:     [ Match / Not Match ]                                               |
++----------------------------------------------------------------------------------+
 
-```id="layout4"
-JPanel pnlConfig (BorderLayout)
-
-CENTER → pnlSectionContainer (BoxLayout Y_AXIS)
+|                                                        [ Generate Hash ] [Clear]|
++----------------------------------------------------------------------------------+
 ```
-
-You will:
-
-* **add/remove SectionPanel dynamically**
-* reuse same instance, just replace children
-
----
-
-# 🔷 2. topPanel (CONFIG) — REUSABLE STRUCTURE
-
----
-
-## 🔹 2.1 symmetricConfigPanel
-
-### Structure:
-
-```id="symm1"
-pnlConfig
- ├── pnlAlgorithmSection
- ├── pnlKeySection
- ├── pnlOptionSection
-```
-
----
-
-### 🔸 Algorithm Section (reuse FieldRow)
-
-* Algorithm (ComboBox)
-* Architecture (ComboBox)
-
----
-
-### 🔸 Key Section
-
-* Key (TextField + buttons)
-* KeySize (ComboBox OR TextField)
-
----
-
-### 🔸 Option Section
-
-* Mode (ComboBox)
-* Padding (ComboBox)
-* IV (TextField + Generate)
-* Language (ComboBox)
-
----
-
-👉 IMPORTANT:
-
-* You reuse same `FieldRow` class
-* Only swap **input component**
-
----
-
-## 🔹 2.2 asymmetricConfigPanel
-
-Same structure, but you **replace rows**
-
----
-
-### Key Section becomes:
-
-* PublicKey (TextField + import/export)
-* PrivateKey (TextField + import/export)
-* KeySize + GenerateKeyPair
-
----
-
-### Option Section:
-
-* Language
-* (Optional label row: Hybrid info)
-
----
-
-👉 You are NOT creating new panel classes
-👉 You are **rebuilding rows inside existing sections**
-
----
-
-## 🔹 2.3 hashConfigPanel
-
-Minimal version:
-
-* Algorithm
-* OutputFormat
-* Language
-
----
-
-👉 Same SectionPanel reused
-👉 Fewer rows only
-
----
-
-# 🔷 3. centerPanel (INPUT) — CLEAN REUSE
-
----
-
-## 🔹 Shared Input Header
-
-```id="input1"
-pnlInputSwitch (FlowLayout)
-
-[ rbText ] [ rbFile ]
-```
-
----
-
-## 🔹 textInputPanel
-
-```id="input2"
-BorderLayout
-
-CENTER → JScrollPane(txtInput)
-```
-
----
-
-## 🔹 fileInputPanel
-
-```id="input3"
-FlowLayout
-
-txtFilePath + btnBrowse
-```
-
----
-
-👉 These are **not duplicated**
-👉 Just switch with CardLayout
-
----
-
-# 🔷 4. bottomPanel (REUSABLE ACTION SYSTEM)
-
----
-
-## 🔹 4.1 ActionPanel (dynamic replace)
-
-```id="action1"
-pnlActionContainer (FlowLayout)
-```
-
-Instead of hide/show buttons:
-
-👉 You will:
-
-```java
-pnlActionContainer.removeAll();
-pnlActionContainer.add(btnEncryptText);
-pnlActionContainer.add(btnDecryptText);
-```
-
----
-
-### Button sets:
-
-**Symmetric**
-
-* EncryptText / DecryptText
-* EncryptFile / DecryptFile
-
-**Asymmetric**
-
-* same structure
-
-**Hash**
-
-* HashText / HashFile
-
----
-
-## 🔹 4.2 Result Panel (fixed)
-
-```id="result1"
-BorderLayout
-
-NORTH → lblResult
-CENTER → JScrollPane(txtResult)
-```
-
----
-
-## 🔹 4.3 Status Panel (fixed)
-
-```id="status1"
-FlowLayout(LEFT)
-
-lblStatus
-```
-
----
-
-# 🔷 5. MODE SWITCHING FLOW (IMPORTANT)
-
----
-
-## 🔹 Main Mode Selector
-
-```id="mode1"
-JComboBox cbMainMode
-```
-
-Values:
-
-* Symmetric
-* Asymmetric
-* Hash
-
----
-
-## 🔹 When mode changes:
-
-You do:
-
-```java
-// 1. Switch config UI
-cardLayout.show(topPanel, mode)
-
-// 2. Rebuild action buttons
-pnlActionContainer.removeAll()
-add buttons based on mode
-
-// 3. Refresh UI
-revalidate()
-repaint()
-```
-
----
-
-# 🔷 6. REUSE STRATEGY SUMMARY
-
----
-
-## What you reuse:
-
-### ✅ ALWAYS reused
-
-* FieldRow
-* SectionPanel
-* ConfigPanel structure
-* ResultPanel
-* StatusPanel
-
----
-
-## What you REPLACE dynamically:
-
-* rows inside SectionPanel
-* buttons inside ActionPanel
-
----
-
-## What uses CardLayout:
-
-* topPanel (mode switch)
-* centerPanel (text/file)
-
----
-
-# 🔥 KEY DESIGN DECISION (WHY this is GOOD)
-
-You avoided:
-
-❌ too many classes
-❌ complex pattern
-❌ show/hide spaghetti
-
-You achieved:
-
-✅ clean structure
-✅ easy to extend new algorithm
-✅ controller-friendly (each row has clear meaning)
-✅ matches your “replace object” mindset
-
----
-
-# 🚀 NEXT STEP (important for you)
-
-Before coding, think:
-
-👉 How will you **store references of FieldRow inputs?**
-
-Example problem:
-
-* You need to read key, algorithm, mode later
-
----
-
-If you want, next I can guide you:
-
-👉 how to design a **simple View → Controller data extraction**
-(without breaking your “no pattern” rule, but still clean)
-

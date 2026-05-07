@@ -1,31 +1,31 @@
 package view.center;
 
-import view.builders.*;
-
 import javax.swing.*;
 import java.awt.*;
 
 public class TextInputCard extends JPanel {
-    private CenterPanel parent;
     private JLabel lblText;
     private JTextArea txtInput;
     private JScrollPane scrollPane;
 
-    public TextInputCard(CenterPanel parent) {
-        this.parent = parent;
+    public TextInputCard(Runnable runnable) {
         setLayout(new BorderLayout());
 
         JPanel panel = new JPanel(new BorderLayout());
-        lblText = LabelBuilder.builder("Input your text");
+
+        lblText = new JLabel("Input your text");
         panel.add(lblText, BorderLayout.WEST);
-        panel.add(this.parent.panel, BorderLayout.EAST);
+
+        ButtonGroupPanel buttonGroupPanel = new ButtonGroupPanel();
+        buttonGroupPanel.addActionRbFile(runnable);
+        panel.add(buttonGroupPanel, BorderLayout.EAST);
         add(panel, BorderLayout.NORTH);
 
-        txtInput = TextAreaBuilder.builder()
-                .size(100, 100);
+        txtInput = new JTextArea();
+        txtInput.setPreferredSize(new Dimension(100, 100));
 
-        scrollPane = ScrollPaneBuilder.builder()
-                .textArea(txtInput);
+        scrollPane = new JScrollPane();
+        scrollPane.setViewportView(txtInput);
         add(scrollPane, BorderLayout.CENTER);
     }
 }
