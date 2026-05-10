@@ -9,6 +9,7 @@ public class SymmetricCard extends JPanel {
     private JComboBox<String> cbAlgorithm, cbMode, cbPadding;
     private JButton btnGenKey, btnImportKey, btnExportKey, btnGenIV, btnImportIV;
     private ButtonGroup buttonGroup;
+    private JPanel keySizePanel;
 
     public SymmetricCard() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -67,10 +68,10 @@ public class SymmetricCard extends JPanel {
     }
 
     private void initialKeySize() {
-        JPanel groupPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        keySizePanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         lblKeySize = new JLabel("Kích thước khóa");
         lblKeySize.setPreferredSize(new Dimension(100, 20));
-        groupPanel.add(lblKeySize);
+        keySizePanel.add(lblKeySize);
 
         String[] list = new String[]{"128"};
         buttonGroup = new ButtonGroup();
@@ -78,9 +79,9 @@ public class SymmetricCard extends JPanel {
             JRadioButton rbSize = new JRadioButton(list[i]);
             if (i == 0) rbSize.setSelected(true);
             buttonGroup.add(rbSize);
-            groupPanel.add(rbSize);
+            keySizePanel.add(rbSize);
         }
-        add(groupPanel);
+        add(keySizePanel);
     }
 
     public void initialSecretKey() {

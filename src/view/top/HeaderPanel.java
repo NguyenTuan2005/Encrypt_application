@@ -6,16 +6,20 @@ import java.awt.*;
 public class HeaderPanel extends JPanel {
     private JMenuBar menuBar;
     private JMenu menu;
-    private JMenuItem symmetricItem, asymmetricItem, hashItem, enItem, vnItem;
+    private JMenuItem symmetricTraditionalItem,symmetricModernItem, asymmetricItem, hashItem, enItem, vnItem;
 
     public HeaderPanel() {
         setLayout(new FlowLayout(FlowLayout.LEFT));
 
         menuBar = new JMenuBar();
         menu = new JMenu("Loại mã hóa");
-        symmetricItem = new JMenuItem("Mã hóa đối xứng");
-        symmetricItem.setSelected(true);
-        menu.add(symmetricItem);
+
+        symmetricTraditionalItem = new JMenuItem("Mã hóa đối xứng cổ điển");
+        symmetricTraditionalItem.setSelected(true);
+        menu.add(symmetricTraditionalItem);
+
+        symmetricModernItem = new JMenuItem("Mã hóa đối xứng hiện đại");
+        menu.add(symmetricModernItem);
 
         asymmetricItem = new JMenuItem("Mã hóa bất đối xứng");
         menu.add(asymmetricItem);
@@ -36,8 +40,9 @@ public class HeaderPanel extends JPanel {
     }
 
     public void addCardEvent(ConfigurationPanel configPanel) {
-        symmetricItem.addActionListener((e) -> configPanel.showSymmetric());
-        asymmetricItem.addActionListener((e) -> configPanel.showAsymmetric());
-        hashItem.addActionListener((e) -> configPanel.showHash());
+        symmetricTraditionalItem.addActionListener(e -> configPanel.showTraditionalSymmetric());
+        symmetricModernItem.addActionListener(e -> configPanel.showSymmetric());
+        asymmetricItem.addActionListener(e -> configPanel.showAsymmetric());
+        hashItem.addActionListener(e -> configPanel.showHash());
     }
 }

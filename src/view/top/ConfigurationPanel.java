@@ -5,6 +5,7 @@ import java.awt.*;
 
 public class ConfigurationPanel extends JPanel {
     private CardLayout layout;
+    private TraditionalSymmetricCard traditionalSymmetricCard;
     private SymmetricCard symmetricCard;
     private AsymmetricCard asymmetricCard;
     private HashCard hashCard;
@@ -13,12 +14,18 @@ public class ConfigurationPanel extends JPanel {
         layout = new CardLayout();
         setLayout(layout);
 
+        traditionalSymmetricCard = new TraditionalSymmetricCard();
         symmetricCard = new SymmetricCard();
         asymmetricCard = new AsymmetricCard();
         hashCard = new HashCard();
+        add(traditionalSymmetricCard, "TSYM");
         add(symmetricCard, "SYM");
         add(asymmetricCard, "ASYM");
         add(hashCard, "HASH");
+    }
+
+    public void showTraditionalSymmetric() {
+        layout.show(this, "TSYM");
     }
 
     public void showSymmetric() {

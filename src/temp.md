@@ -1,376 +1,122 @@
-Good, you’re thinking in the right separation (View only, future Controller in mind). I’ll structure this so you can directly map to Swing containers without mixing logic.
-
----
-
-# 🧠 OVERALL VIEW STRUCTURE (Swing Layout)
-
-```
-JFrame (MainFrame)
- └── rootPanel (BorderLayout)
-      ├── topPanel (NORTH)      → configuration (CardLayout)
-      ├── centerPanel (CENTER) → input only (text/file)
-      └── bottomPanel (SOUTH)  → actions + result
-```
-
----
-
-# 🔷 1. topPanel (CONFIG AREA — CardLayout)
-
-Use:
-
-```
-topPanel.setLayout(new CardLayout())
-```
-
-### Cards:
-
-* `symmetricCard`
-* `asymmetricCard`
-* `hashCard`
-
----
-
-## 🔹 1.1 Symmetric Encryption Card
-
-### Layout suggestion:
-
-```
-GridBagLayout (flexible for future extension)
-```
-
-### Components:
-
-**Algorithm Section**
-
-* `JLabel lblAlgorithm`
-* `JComboBox<String> cbAlgorithm`
-
-    * Examples: AES, DES, 3DES, Blowfish
-
-**Architecture (for learning purpose)**
-
-* `JLabel lblArchitecture`
-* `JComboBox<String> cbArchitecture`
-
-    * Feistel
-    * SPN
-
-**Key Section**
-
-* `JLabel lblKey`
-* `JTextField txtKey`
-* `JButton btnImportKey`
-* `JButton btnExportKey`
-* `JButton btnGenerateKey`
-
-**Key Size**
-
-* `JLabel lblKeySize`
-* `JComboBox<String> cbKeySize` (predefined)
-* `JTextField txtKeySizeCustom` (optional input)
-
-**Mode**
-
-* `JLabel lblMode`
-* `JComboBox<String> cbMode`
-
-    * ECB, CBC, CFB, OFB, GCM
-
-**Padding**
-
-* `JLabel lblPadding`
-* `JComboBox<String> cbPadding`
-
-    * PKCS5Padding, NoPadding
-
-**IV (Initialization Vector)**
-
-* `JLabel lblIV`
-* `JTextField txtIV`
-* `JButton btnGenerateIV`
-
-**Language / Input Constraint**
-
-* `JLabel lblLanguage`
-* `JComboBox<String> cbLanguage`
-
-    * EN (0-9, a-z, A-Z)
-    * VI (Vietnamese tones supported)
-
----
-
-## 🔹 1.2 Asymmetric Encryption Card
-
-### Components:
-
-**Algorithm**
-
-* `JLabel lblAlgorithm`
-* `JComboBox<String> cbAlgorithm`
-
-    * RSA, ElGamal (if supported)
-
-**Key Section**
-
-* `JLabel lblPublicKey`
-
-* `JTextField txtPublicKey`
-
-* `JButton btnImportPublicKey`
-
-* `JButton btnExportPublicKey`
-
-* `JLabel lblPrivateKey`
-
-* `JTextField txtPrivateKey`
-
-* `JButton btnImportPrivateKey`
-
-* `JButton btnExportPrivateKey`
-
-**Key Generation**
-
-* `JLabel lblKeySize`
-* `JComboBox<String> cbKeySize`
-* `JButton btnGenerateKeyPair`
-
-**Hybrid Encryption Info (UI hint only)**
-
-* `JLabel lblHybridNote`
-
-    * “File encryption uses RSA + Symmetric (Hybrid)”
-
-**Language**
-
-* same as symmetric:
-
-    * `JComboBox cbLanguage`
-
----
-
-## 🔹 1.3 Hash Card
-
-### Components:
-
-**Algorithm**
-
-* `JLabel lblHashAlgorithm`
-* `JComboBox<String> cbHashAlgorithm`
-
-    * MD5
-    * SHA-256
-    * SHA-512
-    * (optional: SHA-1, SHA-3)
-
-**Output Format**
-
-* `JLabel lblOutputFormat`
-* `JComboBox<String> cbOutputFormat`
-
-    * Hex
-    * Base64
-
-**Language**
-
-* `JComboBox cbLanguage`
-
----
-
-# 🔷 2. centerPanel (INPUT ONLY — NO CONFIG)
-
-### Layout:
-
-```
-CardLayout
-```
-
-### Cards:
-
-* `textInputCard`
-* `fileInputCard`
-
----
-
-## 🔹 2.1 Text Input Card
-
-**Components:**
-
-* `JLabel lblInputText`
-* `JTextArea txtInput`
-
-    * `JScrollPane`
-
----
-
-## 🔹 2.2 File Input Card
-
-**Components:**
-
-* `JLabel lblFilePath`
-* `JTextField txtFilePath`
-* `JButton btnBrowseFile`
-
----
-
-## 🔹 Input Type Switch (top of centerPanel)
-
-* `JRadioButton rbText`
-* `JRadioButton rbFile`
-* `ButtonGroup bgInputType`
-
----
-
-# 🔷 3. bottomPanel (ACTIONS + RESULT)
-
-### Layout:
-
-```
-BorderLayout
+# Caesar / Shift Cipher
+
+```text
++--------------------------------------------------+
+| Caesar Cipher Configuration                      |
+|--------------------------------------------------|
+| Shift Value:     [ 3 ]                           |
+| Alphabet:        [ A-Z ▼ ]                       |
+| Direction:       (•) Right   ( ) Left            |
+|                                                  |
+| Preserve Case:   [✓]                             |
+| Keep Spaces:     [✓]                             |
+| Keep Symbols:    [✓]                             |
++--------------------------------------------------+
 ```
 
 ---
 
-## 🔹 3.1 Action Panel (TOP of bottomPanel)
+# Substitution Cipher
 
-### Components:
-
-**Symmetric**
-
-* `JButton btnEncryptText`
-* `JButton btnDecryptText`
-* `JButton btnEncryptFile`
-* `JButton btnDecryptFile`
-
-**Asymmetric**
-
-* same buttons (reuse naming, controller will decide)
-
-**Hash**
-
-* `JButton btnHashText`
-* `JButton btnHashFile`
-
----
-
-## 🔹 3.2 Result Panel (CENTER of bottomPanel)
-
-### Components:
-
-* `JLabel lblResult`
-* `JTextArea txtResult`
-
-    * `JScrollPane`
-
----
-
-## 🔹 3.3 Status Panel (BOTTOM of bottomPanel)
-
-### Components:
-
-* `JLabel lblStatus`
-
-    * show:
-
-        * invalid input (wrong keyboard)
-        * key size mismatch
-        * unsupported characters skipped
-        * success message
-
----
-
-# ⚠️ IMPORTANT UI RULES (based on your requirements)
-
-### 1. Input validation feedback (UI responsibility)
-
-* DO NOT block typing
-* Show warning in `lblStatus`
-
-Examples:
-
-* “Unsupported characters will be skipped”
-* “Input does not match selected language (EN/VI)”
-
----
-
-### 2. Key behavior (UI hint only)
-
-* When import key → display in `txtKey`
-* When generate → auto-fill key + keySize
-
----
-
-### 3. Mode switching (important)
-
-You should also have:
-
-```
-JComboBox<String> cbMainMode
+```text
++--------------------------------------------------+
+| Substitution Cipher Configuration                |
+|--------------------------------------------------|
+| Alphabet:        [ A-Z ▼ ]                       |
+|                                                  |
+| Mapping Key:                                     |
+| [ QWERTYUIOPASDFGHJKLZXCVBNM                  ] |
+|                                                  |
+| [ Generate Random Key ] [ Import ] [ Export ]   |
+|                                                  |
+| Preserve Case:   [✓]                             |
+| Keep Spaces:     [✓]                             |
+| Keep Symbols:    [✓]                             |
++--------------------------------------------------+
 ```
 
-Values:
+---
 
-* Symmetric
-* Asymmetric
-* Hash
+# Affine Cipher
 
-👉 This controls:
-
-* topPanel card
-* bottomPanel action buttons visibility
+```text
++--------------------------------------------------+
+| Affine Cipher Configuration                      |
+|--------------------------------------------------|
+| Multiplicative Key (a): [ 5 ▼ ]                  |
+| Additive Key (b):       [ 8 ]                    |
+| Modulo:                 [ 26 ]                   |
+|                                                  |
+| Alphabet:              [ A-Z ▼ ]                 |
+|                                                  |
+| Preserve Case:         [✓]                       |
+| Keep Spaces:           [✓]                       |
+| Keep Symbols:          [✓]                       |
++--------------------------------------------------+
+```
 
 ---
 
-# 🧩 COMPONENT NAMING STRATEGY (important for MVC later)
+# Vigenère Cipher
 
-Use consistent prefixes:
-
-| Type         | Prefix |
-| ------------ | ------ |
-| JButton      | btn    |
-| JLabel       | lbl    |
-| JTextField   | txt    |
-| JTextArea    | txt    |
-| JComboBox    | cb     |
-| JRadioButton | rb     |
-| Panel        | pnl    |
-
----
-
-# 🔍 DESIGN INSIGHT (WHY this structure?)
-
-You are actually preparing for:
-
-### Strategy Pattern later
-
-* Algorithm = Strategy
-* UI just selects strategy (cbAlgorithm)
-
-### MVC separation
-
-* View = only components
-* Controller = listen to buttons
-* Model = encryption logic
+```text
++--------------------------------------------------+
+| Vigenère Cipher Configuration                    |
+|--------------------------------------------------|
+| Keyword:          [ SECRET                     ] |
+| Alphabet:         [ A-Z ▼ ]                     |
+|                                                  |
+| Auto Repeat Key:  [✓]                            |
+|                                                  |
+| Preserve Case:    [✓]                            |
+| Keep Spaces:      [✓]                            |
+| Keep Symbols:     [✓]                            |
++--------------------------------------------------+
+```
 
 ---
 
-# 🚀 NEXT STEP (recommended)
+# Hill Cipher
 
-Before coding:
-
-**Ask yourself:**
-
-* Which components are SHARED across modes?
-* Which are mode-specific?
-
-👉 That leads to reusable UI builder (you like builder pattern → perfect here)
+```text
++--------------------------------------------------+
+| Hill Cipher Configuration                        |
+|--------------------------------------------------|
+| Matrix Size:      [ 2x2 ▼ ]                      |
+| Modulo:           [ 26 ]                         |
+|                                                  |
+| Key Matrix:                                      |
+| [ 3 ] [ 2 ]                                      |
+| [ 5 ] [ 7 ]                                      |
+|                                                  |
+| [ Generate Matrix ] [ Import ] [ Export ]       |
+|                                                  |
+| Determinant:      [ Valid ✓ ]                    |
+|                                                  |
+| Preserve Case:    [✓]                            |
+| Keep Spaces:      [✓]                            |
++--------------------------------------------------+
+```
 
 ---
 
-If you want next step, I can guide you:
-👉 how to map this UI → Controller actions (clean, scalable, no spaghetti)
+# Permutation / Transposition Cipher
 
-
-Good direction — but don’t jump into patterns yet.
+```text
++--------------------------------------------------+
+| Permutation Cipher Configuration                 |
+|--------------------------------------------------|
+| Method:          [ Columnar ▼ ]                  |
+| Keyword:         [ ZEBRA                      ]  |
+|                                                  |
+| Padding Character: [ X ]                         |
+|                                                  |
+| Read Order:      (•) Vertical   ( ) Horizontal   |
+|                                                  |
+| Keep Spaces:     [✓]                             |
+| Keep Symbols:    [✓]                             |
++--------------------------------------------------+
+```
 
 ======================================================================================================================================
 ```
