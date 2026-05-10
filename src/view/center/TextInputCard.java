@@ -13,7 +13,7 @@ public class TextInputCard extends JPanel {
 
         JPanel panel = new JPanel(new BorderLayout());
 
-        lblText = new JLabel("Input your text");
+        lblText = new JLabel("Nhập văn bản");
         panel.add(lblText, BorderLayout.WEST);
 
         ButtonGroupPanel buttonGroupPanel = new ButtonGroupPanel();

@@ -16,12 +16,12 @@ public class BottomPanel extends JPanel {
         setBorder(BorderFactory.createLineBorder(ColorView.BORDER_COLOR));
 
         JPanel panel = new JPanel(new BorderLayout());
-        lblResult = new JLabel("Console result");
+        lblResult = new JLabel("Kết quả:");
         panel.add(lblResult, BorderLayout.WEST);
 
         JPanel btnPanel = new JPanel(new FlowLayout());
-        btnEncrypt = new JButton("Encrypt");
-        btnDecrypt = new JButton("Decrypt");
+        btnEncrypt = new JButton("Mã hóa");
+        btnDecrypt = new JButton("Giải mã");
         btnPanel.add(btnEncrypt);
         btnPanel.add(btnDecrypt);
         panel.add(btnPanel, BorderLayout.EAST);

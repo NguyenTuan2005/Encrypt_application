@@ -12,7 +12,7 @@ public class FileInputCard extends JPanel {
         setLayout(new BorderLayout());
 
         JPanel panel = new JPanel(new BorderLayout());
-        lblFile = new JLabel("Insert your file");
+        lblFile = new JLabel("Thêm tệp để bắt đầu");
         panel.add(lblFile, BorderLayout.WEST);
 
         ButtonGroupPanel buttonGroupPanel = new ButtonGroupPanel();
@@ -23,7 +23,7 @@ public class FileInputCard extends JPanel {
         panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
 
-        btnBrowseFile = new JButton("Browse");
+        btnBrowseFile = new JButton("Tìm kiếm");
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.anchor = GridBagConstraints.CENTER;

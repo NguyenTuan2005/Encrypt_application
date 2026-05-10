@@ -9,8 +9,8 @@ public class ButtonGroupPanel extends JPanel {
 
     public ButtonGroupPanel() {
         setLayout(new FlowLayout());
-        rbText = new JRadioButton("Text");
-        rbFile = new JRadioButton("File");
+        rbText = new JRadioButton("Văn bản");
+        rbFile = new JRadioButton("Tệp");
         bgInputType = new ButtonGroup();
 
         bgInputType.add(rbText);
