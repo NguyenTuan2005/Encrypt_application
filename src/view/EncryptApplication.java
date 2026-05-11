@@ -15,7 +15,6 @@ public class EncryptApplication extends JFrame {
     public EncryptApplication() {
         setTitle("Công cụ mật mã");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setResizable(false);
         setSize(600, 600);
         setLayout(new BorderLayout());
         setLocationRelativeTo(null);

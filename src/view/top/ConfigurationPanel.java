@@ -1,5 +1,10 @@
 package view.top;
 
+import controller.ILanguage;
+import controller.LanguageController;
+import model.ILanguageModel;
+import model.Language;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -9,12 +14,16 @@ public class ConfigurationPanel extends JPanel {
     private SymmetricCard symmetricCard;
     private AsymmetricCard asymmetricCard;
     private HashCard hashCard;
+    private ILanguageModel language;
 
     public ConfigurationPanel() {
         layout = new CardLayout();
         setLayout(layout);
 
-        traditionalSymmetricCard = new TraditionalSymmetricCard();
+        language = Language.getInstance();
+        traditionalSymmetricCard = new TraditionalSymmetricCard(language);
+        language.addObserver(traditionalSymmetricCard);
+
         symmetricCard = new SymmetricCard();
         asymmetricCard = new AsymmetricCard();
         hashCard = new HashCard();

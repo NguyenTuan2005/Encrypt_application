@@ -1,5 +1,10 @@
 package view.top;
 
+import controller.ILanguage;
+import controller.LanguageController;
+import model.ILanguageModel;
+import model.Language;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -37,6 +42,8 @@ public class HeaderPanel extends JPanel {
         menu.add(vnItem);
         menuBar.add(menu);
         add(menuBar);
+
+        addLanguageEvent(new LanguageController());
     }
 
     public void addCardEvent(ConfigurationPanel configPanel) {
@@ -44,5 +51,10 @@ public class HeaderPanel extends JPanel {
         symmetricModernItem.addActionListener(e -> configPanel.showSymmetric());
         asymmetricItem.addActionListener(e -> configPanel.showAsymmetric());
         hashItem.addActionListener(e -> configPanel.showHash());
+    }
+
+    public void addLanguageEvent(ILanguage languageController) {
+        enItem.addActionListener(e -> languageController.setEnglishLanguage());
+        vnItem.addActionListener(e -> languageController.setVietnameseLanguage());
     }
 }
