@@ -57,7 +57,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         hillPanel.updateNumberFormat();
     }
 
-    class Header extends JPanel {
+    public class Header extends JPanel {
         private JLabel lblMethod;
         private JComboBox<String> cbMethod;
 
@@ -97,7 +97,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         }
     }
 
-    class CaesarPanel extends JPanel {
+    public class CaesarPanel extends JPanel {
         private JLabel lblShift;
         private JFormattedTextField tfShift;
         private NumberFormatter formatter;
@@ -127,7 +127,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         }
     }
 
-    class SubstitutionPanel extends JPanel {
+    public class SubstitutionPanel extends JPanel {
         private JLabel lblMapKey;
         private JTextField tfMapKey;
         private JButton btnGenMapKey, btnImportMapKey;
@@ -156,7 +156,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         }
     }
 
-    class AffinePanel extends JPanel {
+    public class AffinePanel extends JPanel {
         private JLabel lblKeyA, lblKeyB, lblModule;
         private JFormattedTextField tfKeyA, tfKeyB;
         private NumberFormatter formatterKeyA, formatterKeyB;
@@ -221,7 +221,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         }
     }
 
-    class VigenerePanel extends JPanel {
+    public class VigenerePanel extends JPanel {
         private JLabel lblKeyword;
         private JTextField tfKeyword;
 
@@ -242,7 +242,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         }
     }
 
-    class HillPanel extends JPanel {
+    public class HillPanel extends JPanel {
         private JLabel lblKeySize, lblMatrix;
         private JComboBox<String> cbKeySize;
         private JTable matrix;
@@ -359,7 +359,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         }
     }
 
-    class PermutationPanel extends JPanel {
+    public class PermutationPanel extends JPanel {
         private JLabel lblBlockSize, lblKey, lblPaddingChar;
         private JFormattedTextField tfBlockSize;
         private NumberFormatter formatterBlockSize;

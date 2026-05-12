@@ -49,6 +49,9 @@ public class SymmetricCard extends JPanel {
         JPanel groupPanel = new JPanel();
         groupPanel.setLayout(new BoxLayout(groupPanel, BoxLayout.Y_AXIS));
         JPanel panel = new JPanel(new BorderLayout(10, 0));
+        Dimension d = panel.getPreferredSize();
+        panel.setPreferredSize(new Dimension((int) d.getWidth(), 25));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
         lblIV = new JLabel("  IV");
         lblIV.setPreferredSize(new Dimension(100, 20));
         tfIV = new JTextField("");
@@ -88,6 +91,9 @@ public class SymmetricCard extends JPanel {
         JPanel groupPanel = new JPanel();
         groupPanel.setLayout(new BoxLayout(groupPanel, BoxLayout.Y_AXIS));
         JPanel panel = new JPanel(new BorderLayout(10, 0));
+        Dimension d = panel.getPreferredSize();
+        panel.setPreferredSize(new Dimension((int) d.getWidth(), 25));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
         lblSecretKey = new JLabel("  Khóa");
         lblSecretKey.setPreferredSize(new Dimension(100, 20));
         tfSecretKey = new JTextField("");

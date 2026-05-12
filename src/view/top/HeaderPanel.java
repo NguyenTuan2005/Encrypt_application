@@ -33,7 +33,7 @@ public class HeaderPanel extends JPanel {
         menu.add(hashItem);
         menuBar.add(menu);
 
-        menu = new JMenu("Ngôn ngữ mã hóa");
+        menu = new JMenu("Ngôn ngữ hỗ trợ");
         enItem = new JMenuItem("Tiếng Anh");
         enItem.setSelected(true);
         menu.add(enItem);
