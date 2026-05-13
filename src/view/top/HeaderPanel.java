@@ -14,8 +14,6 @@ public class HeaderPanel extends JPanel {
     private JMenuItem symmetricTraditionalItem,symmetricModernItem, asymmetricItem, hashItem, enItem, vnItem;
 
     public HeaderPanel() {
-
-        setBackground(Color.BLACK);
         setLayout(new FlowLayout(FlowLayout.LEFT));
 
         menuBar = new JMenuBar();

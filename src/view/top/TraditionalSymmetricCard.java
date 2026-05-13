@@ -227,17 +227,16 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
 
         public VigenerePanel() {
             setLayout(new BoxLayout(VigenerePanel.this, BoxLayout.Y_AXIS));
-            JPanel groupPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            JPanel groupPanel = new JPanel(new BorderLayout(10, 0));
             Dimension d = groupPanel.getPreferredSize();
             groupPanel.setPreferredSize(new Dimension((int) d.getWidth(), 30));
             groupPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
-            lblKeyword = new JLabel("Từ khóa");
+            lblKeyword = new JLabel("  Từ khóa");
             lblKeyword.setPreferredSize(new Dimension(100, 20));
 
             tfKeyword = new JTextField("");
-            tfKeyword.setPreferredSize(new Dimension(200, 20));
-            groupPanel.add(lblKeyword);
-            groupPanel.add(tfKeyword);
+            groupPanel.add(lblKeyword, BorderLayout.WEST);
+            groupPanel.add(tfKeyword, BorderLayout.CENTER);
             add(groupPanel);
         }
     }

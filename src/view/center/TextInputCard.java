@@ -12,7 +12,7 @@ public class TextInputCard extends JPanel {
         setLayout(new BorderLayout());
 
         JPanel panel = new JPanel(new BorderLayout());
-
+        panel.add(Box.createVerticalStrut(30), BorderLayout.NORTH);
         lblText = new JLabel("Nhập văn bản");
         panel.add(lblText, BorderLayout.WEST);
 

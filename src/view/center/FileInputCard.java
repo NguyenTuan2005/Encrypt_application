@@ -12,6 +12,7 @@ public class FileInputCard extends JPanel {
         setLayout(new BorderLayout());
 
         JPanel panel = new JPanel(new BorderLayout());
+        panel.add(Box.createVerticalStrut(30), BorderLayout.NORTH);
         lblFile = new JLabel("Thêm tệp để bắt đầu");
         panel.add(lblFile, BorderLayout.WEST);
 
