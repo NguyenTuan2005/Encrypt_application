@@ -1,9 +1,8 @@
 package view.top;
 
+import controller.EncryptionController;
 import controller.ILanguage;
 import controller.LanguageController;
-import model.ILanguageModel;
-import model.Language;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,6 +11,7 @@ public class HeaderPanel extends JPanel {
     private JMenuBar menuBar;
     private JMenu menu;
     private JMenuItem symmetricTraditionalItem,symmetricModernItem, asymmetricItem, hashItem, enItem, vnItem;
+    private EncryptionController controller = EncryptionController.getInstance();
 
     public HeaderPanel() {
         setLayout(new FlowLayout(FlowLayout.LEFT));
@@ -47,10 +47,22 @@ public class HeaderPanel extends JPanel {
     }
 
     public void addCardEvent(ConfigurationPanel configPanel) {
-        symmetricTraditionalItem.addActionListener(e -> configPanel.showTraditionalSymmetric());
-        symmetricModernItem.addActionListener(e -> configPanel.showSymmetric());
-        asymmetricItem.addActionListener(e -> configPanel.showAsymmetric());
-        hashItem.addActionListener(e -> configPanel.showHash());
+        symmetricTraditionalItem.addActionListener(e -> {
+            configPanel.showTraditionalSymmetric();
+            controller.setCurrentController("Tradition");
+        });
+        symmetricModernItem.addActionListener(e -> {
+            configPanel.showSymmetric();
+            controller.setCurrentController("Modern");
+        });
+        asymmetricItem.addActionListener(e -> {
+            configPanel.showAsymmetric();
+            controller.setCurrentController("Asymmetric");
+        });
+        hashItem.addActionListener(e -> {
+            configPanel.showHash();
+            controller.setCurrentController("Hash");
+        });
     }
 
     public void addLanguageEvent(ILanguage languageController) {

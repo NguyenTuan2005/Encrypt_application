@@ -13,7 +13,7 @@ public class TextInputCard extends JPanel {
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(Box.createVerticalStrut(30), BorderLayout.NORTH);
-        lblText = new JLabel("Nhập văn bản");
+        lblText = new JLabel("  Nhập văn bản");
         panel.add(lblText, BorderLayout.WEST);
 
         ButtonGroupPanel buttonGroupPanel = new ButtonGroupPanel();
@@ -27,5 +27,9 @@ public class TextInputCard extends JPanel {
         scrollPane = new JScrollPane();
         scrollPane.setViewportView(txtInput);
         add(scrollPane, BorderLayout.CENTER);
+    }
+
+    public String getData() {
+        return txtInput.getText();
     }
 }

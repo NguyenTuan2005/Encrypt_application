@@ -13,7 +13,7 @@ public class FileInputCard extends JPanel {
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(Box.createVerticalStrut(30), BorderLayout.NORTH);
-        lblFile = new JLabel("Thêm tệp để bắt đầu");
+        lblFile = new JLabel("  Thêm tệp để bắt đầu");
         panel.add(lblFile, BorderLayout.WEST);
 
         ButtonGroupPanel buttonGroupPanel = new ButtonGroupPanel();
@@ -38,5 +38,9 @@ public class FileInputCard extends JPanel {
         gbc.weightx = 1.0;
         panel.add(txtFilePath, gbc);
         add(panel, BorderLayout.CENTER);
+    }
+
+    public String getData() {
+        return txtFilePath.getText();
     }
 }

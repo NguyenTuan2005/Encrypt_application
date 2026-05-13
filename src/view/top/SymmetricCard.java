@@ -1,41 +1,34 @@
 package view.top;
 
+import cipher.symmetric.modern.ModernSymmetric;
+import controller.EncryptionController;
+import controller.strategy.ModernSymmetricControllerStrategy;
+import view.bottom.BottomPanel;
+
 import javax.swing.*;
 import java.awt.*;
+import java.util.Arrays;
 
 public class SymmetricCard extends JPanel {
-    private JLabel lblAlgorithm, lblMode, lblPadding, lblSecretKey, lblKeySize, lblIV;
+    private JLabel lblAlgorithm, lblSecretKey, lblKeySize, lblIV;
     private JTextField tfSecretKey, tfIV;
-    private JComboBox<String> cbAlgorithm, cbMode, cbPadding;
-    private JButton btnGenKey, btnImportKey, btnExportKey, btnGenIV, btnImportIV;
+    private JComboBox<String> cbAlgorithm;
+    private JButton btnGenKey, btnImportKey, btnExportKey, btnGenIV, btnImportIV, btnExportIV;
     private ButtonGroup buttonGroup;
+    private JRadioButton[] rbKeySizes;
     private JPanel keySizePanel;
+    private ModernSymmetricControllerStrategy controller = (ModernSymmetricControllerStrategy) EncryptionController.getInstance().get("Modern");
 
     public SymmetricCard() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        controller.setView(this);
 
         JPanel groupPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         lblAlgorithm = new JLabel("Thuật toán");
         lblAlgorithm.setPreferredSize(new Dimension(100, 20));
-        cbAlgorithm = new JComboBox<>(new String[]{"AES"});
+        cbAlgorithm = new JComboBox<>(controller.getAlgorithms());
         groupPanel.add(lblAlgorithm);
         groupPanel.add(cbAlgorithm);
-        add(groupPanel);
-
-        groupPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-        lblMode = new JLabel("Mode");
-        lblMode.setPreferredSize(new Dimension(100, 20));
-        cbMode = new JComboBox<>(new String[]{"CBC"});
-        groupPanel.add(lblMode);
-        groupPanel.add(cbMode);
-        add(groupPanel);
-
-        groupPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        lblPadding = new JLabel("Padding");
-        lblPadding.setPreferredSize(new Dimension(100, 20));
-        cbPadding = new JComboBox<>(new String[]{"PKCS5Padding"});
-        groupPanel.add(lblPadding);
-        groupPanel.add(cbPadding);
         add(groupPanel);
 
         initialSecretKey();
@@ -43,6 +36,51 @@ public class SymmetricCard extends JPanel {
         initialKeySize();
 
         initialIV();
+
+        addEvent();
+    }
+
+    private void addEvent() {
+        btnGenKey.addActionListener(e -> {
+            try {
+                tfSecretKey.setText(controller.genKey());
+            } catch (Exception ex) {
+                BottomPanel.updateResult(ex.getMessage());
+            }
+        });
+
+        btnGenIV.addActionListener(e -> {
+            tfIV.setText(controller.genIV());
+        });
+
+        cbAlgorithm.addActionListener(e -> {
+            String selected = (String) cbAlgorithm.getSelectedItem();
+            updateKeySize(selected);
+        });
+    }
+
+    private void updateKeySize(String algorithm) {
+        String[] keySizes = controller.findKeySizes(algorithm);
+
+        keySizePanel.removeAll();
+        buttonGroup = new ButtonGroup();
+        lblKeySize = new JLabel("Kích thước khóa");
+        lblKeySize.setPreferredSize(new Dimension(100, 20));
+        keySizePanel.add(lblKeySize);
+
+        rbKeySizes = Arrays.stream(keySizes)
+                .map(s -> new JRadioButton(s))
+                .toArray(JRadioButton[]::new);
+
+        for (int i = 0; i < rbKeySizes.length; i++) {
+            JRadioButton rbSize = rbKeySizes[i];
+            if (i == 0) rbSize.setSelected(true);
+            buttonGroup.add(rbSize);
+            keySizePanel.add(rbSize);
+        }
+
+        keySizePanel.revalidate();
+        keySizePanel.repaint();
     }
 
     private void initialIV() {
@@ -63,9 +101,11 @@ public class SymmetricCard extends JPanel {
         panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         btnGenIV = new JButton("Tạo");
         btnImportIV = new JButton("Chèn");
+        btnExportIV = new JButton("Xuất");
         panel.add(Box.createHorizontalStrut(100));
         panel.add(btnGenIV);
         panel.add(btnImportIV);
+        panel.add(btnExportIV);
         groupPanel.add(panel);
         add(groupPanel);
     }
@@ -76,10 +116,12 @@ public class SymmetricCard extends JPanel {
         lblKeySize.setPreferredSize(new Dimension(100, 20));
         keySizePanel.add(lblKeySize);
 
-        String[] list = new String[]{"128"};
+        rbKeySizes = Arrays.stream(controller.getKeySizes())
+                .map(s -> new JRadioButton(s))
+                .toArray(JRadioButton[]::new);
         buttonGroup = new ButtonGroup();
-        for (int i = 0; i < list.length; i++) {
-            JRadioButton rbSize = new JRadioButton(list[i]);
+        for (int i = 0; i < rbKeySizes.length; i++) {
+            JRadioButton rbSize = rbKeySizes[i];
             if (i == 0) rbSize.setSelected(true);
             buttonGroup.add(rbSize);
             keySizePanel.add(rbSize);
@@ -105,10 +147,26 @@ public class SymmetricCard extends JPanel {
         panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         btnGenKey = new JButton("Tạo");
         btnImportKey = new JButton("Chèn");
+        btnExportKey = new JButton("Xuất");
         panel.add(Box.createHorizontalStrut(100));
         panel.add(btnGenKey);
         panel.add(btnImportKey);
+        panel.add(btnExportKey);
         groupPanel.add(panel);
         add(groupPanel);
+    }
+
+    public void saveConfig(ModernSymmetric modernSymmetric) {
+        int keySize = getSelectedKeySize();
+        modernSymmetric.setKeySize(keySize);
+    }
+
+    private int getSelectedKeySize() {
+        for (JRadioButton rb : rbKeySizes) {
+            if (rb.isSelected()) {
+                return Integer.parseInt(rb.getText());
+            }
+        }
+        return 128;
     }
 }
