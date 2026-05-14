@@ -4,6 +4,7 @@ import controller.EncryptionController;
 import view.center.CenterPanel;
 import view.utils.ColorView;
 
+import javax.crypto.IllegalBlockSizeException;
 import javax.swing.*;
 import java.awt.*;
 

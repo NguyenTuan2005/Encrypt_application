@@ -1,12 +1,16 @@
 package view.center;
 
+import view.EncryptApplication;
+
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 public class FileInputCard extends JPanel {
     private JLabel lblFile;
-    private JTextField txtFilePath;
+    private JTextField tfFilePath;
     private JButton btnBrowseFile;
+    private JFileChooser fileChooser;
 
     public FileInputCard(Runnable runnable) {
         setLayout(new BorderLayout());
@@ -31,16 +35,29 @@ public class FileInputCard extends JPanel {
         gbc.insets = new Insets(10, 10, 10, 10);
         panel.add(btnBrowseFile, gbc);
 
-        txtFilePath = new JTextField(30);
-        txtFilePath.setEditable(false);
+        tfFilePath = new JTextField(30);
+        tfFilePath.setEditable(false);
         gbc.gridy = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.weightx = 1.0;
-        panel.add(txtFilePath, gbc);
+        panel.add(tfFilePath, gbc);
         add(panel, BorderLayout.CENTER);
+        addEvent();
+    }
+
+    private void addEvent() {
+        fileChooser = new JFileChooser();
+        btnBrowseFile.addActionListener(e -> {
+            int result = fileChooser.showOpenDialog(FileInputCard.this);
+
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                tfFilePath.setText(file.getPath());
+            }
+        });
     }
 
     public String getData() {
-        return txtFilePath.getText();
+        return tfFilePath.getText();
     }
 }

@@ -1,13 +1,16 @@
 package cipher.symmetric.modern;
 
 import cipher.FileEncryption;
+import cipher.FileHelper;
 import cipher.TextEncryption;
 import enums.SymmetricAlgorithm;
 import model.Symmetric;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -29,50 +32,62 @@ public class ModernSymmetric implements TextEncryption, FileEncryption {
     };
 
     public String genIV() {
-        if (symmetric.getIVSize() == -1) return "Thuật toán này không sử dụng IV";
-        IvParameterSpec ivParameterSpec = new IvParameterSpec(new byte[symmetric.getKeySize()]);
-        symmetric.setIvParameterSpec(ivParameterSpec);
+        IvParameterSpec ivParameterSpec = new IvParameterSpec(new byte[symmetric.getParameterSpecSize()]);
+        symmetric.setAlgorithmParameterSpec(ivParameterSpec);
         return Base64.getEncoder().encodeToString(ivParameterSpec.getIV());
     };
 
     @Override
-    public void encryptFile(String src, String des) {
-
-    }
-
-    @Override
-    public void decryptFile(String src, String des) {
-
-    }
-
-    @Override
-    public String encryptText(String plainText) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public void encryptFile(String src, String des) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException {
         Cipher cipher = Cipher.getInstance(symmetric.getTransformation());
-        cipher.init(Cipher.ENCRYPT_MODE, symmetric.getSecretKey());
+        cipher.init(Cipher.ENCRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
+        FileHelper.copy(src, des, cipher);
+    }
+
+    @Override
+    public void decryptFile(String src, String des) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException {
+        Cipher cipher = Cipher.getInstance(symmetric.getTransformation());
+        cipher.init(Cipher.DECRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
+        FileHelper.copy(src, des, cipher);
+    }
+
+    @Override
+    public String encryptText(String plainText) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+        Cipher cipher = Cipher.getInstance(symmetric.getTransformation());
+        cipher.init(Cipher.ENCRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
         byte[] data = plainText.getBytes(StandardCharsets.UTF_8);
         return Base64.getEncoder().encodeToString(cipher.doFinal(data));
     }
 
     @Override
-    public String decryptText(String cipherText) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    public String decryptText(String cipherText) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
         Cipher cipher = Cipher.getInstance(symmetric.getTransformation());
-        cipher.init(Cipher.DECRYPT_MODE, symmetric.getSecretKey());
-        byte[] data = cipherText.getBytes(StandardCharsets.UTF_8);
-        return Base64.getEncoder().encodeToString(cipher.doFinal(data));
+        cipher.init(Cipher.DECRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
+        byte[] data = Base64.getDecoder().decode(cipherText);
+        return new String(cipher.doFinal(data), StandardCharsets.UTF_8);
     }
 
-    public SecretKey importKey() {
-        return null;
+    public String importKey(File src) throws IOException {
+        this.symmetric.setSecretKey(FileHelper.importKey(src, this.symmetric.getAlgorithmName()));
+        return Base64.getEncoder().encodeToString(this.symmetric.getSecretKey().getEncoded());
     }
 
-    public void exportKey() {
+    public boolean exportKey(File des) throws IOException {
+        if (this.symmetric.getSecretKey() == null) return false;
+        FileHelper.exportKey(this.symmetric.getSecretKey().getEncoded(), des);
+        return true;
     }
 
-    public IvParameterSpec importIV() {
-        return null;
+    public String importIV(File src) throws IOException {
+        byte[] iv = FileHelper.importIV(src);
+        this.symmetric.setAlgorithmParameterSpec(new IvParameterSpec(iv));
+        return Base64.getEncoder().encodeToString(((IvParameterSpec) this.symmetric.getIv()).getIV());
     }
 
-    public void exportIV() {
+    public boolean exportIV(File des) throws IOException {
+        if (this.symmetric.getIv() == null) return false;
+        FileHelper.exportIV(((IvParameterSpec) this.symmetric.getIv()).getIV(), des);
+        return true;
     }
 
     public String[] getAlgorithms() {
@@ -85,11 +100,15 @@ public class ModernSymmetric implements TextEncryption, FileEncryption {
                 .toArray(String[]::new);
     }
 
-    public String[] findKeySizes(String algorithm) {
-        return this.symmetric.findKeySizes(algorithm);
+    public String[] findKeySizes() {
+        return this.symmetric.findKeySizes();
     }
 
     public void setKeySize(int keySize) {
         this.symmetric.setKeySize(keySize);
+    }
+
+    public SymmetricAlgorithm findSymmetricAlgorithm(String algorithms) {
+        return this.symmetric.findSymmetricAlgorithm(algorithms);
     }
 }

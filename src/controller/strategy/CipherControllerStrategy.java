@@ -4,6 +4,6 @@ import enums.InputType;
 
 public interface CipherControllerStrategy {
     void encrypt(String data) throws Exception;
-    void decrypt(String data);
+    void decrypt(String data) throws Exception;
     void inputTypeChanged(InputType type);
 }

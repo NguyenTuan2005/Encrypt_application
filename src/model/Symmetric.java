@@ -3,13 +3,13 @@ package model;
 import enums.SymmetricAlgorithm;
 
 import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
+import java.security.spec.AlgorithmParameterSpec;
 import java.util.Arrays;
 
 public class Symmetric {
     private SymmetricAlgorithm algorithm;
     private SecretKey secretKey;
-    private IvParameterSpec ivParameterSpec;
+    private AlgorithmParameterSpec parameterSpec;
     private int keySize;
 
     public Symmetric(SymmetricAlgorithm algorithm) {
@@ -18,12 +18,7 @@ public class Symmetric {
     }
 
     public String getAlgorithmName() {
-        String name = algorithm.getTransformation();
-        if (name.contains("/")) {
-            String[] splitAlgorithm = algorithm.getTransformation().split("/");
-            name = splitAlgorithm[0];
-        }
-        return name;
+        return algorithm.getAlgorithm();
     }
 
     public String getTransformation() {
@@ -42,8 +37,8 @@ public class Symmetric {
         return algorithm.getKeySizes();
     }
 
-    public int getIVSize() {
-        return algorithm.getIvSize();
+    public int getParameterSpecSize() {
+        return algorithm.getParameterSpecSize();
     }
 
     public SecretKey getSecretKey() {
@@ -54,22 +49,36 @@ public class Symmetric {
         this.secretKey = secretKey;
     }
 
-    public void setIvParameterSpec(IvParameterSpec ivParameterSpec) {
-        this.ivParameterSpec = ivParameterSpec;
+    public void setAlgorithmParameterSpec(AlgorithmParameterSpec parameterSpec) {
+        this.parameterSpec = parameterSpec;
     }
 
     public String[] getAlgorithms() {
         return this.algorithm.getAlgorithms();
     }
 
-    public String[] findKeySizes(String algorithm) {
-        for (SymmetricAlgorithm sa : SymmetricAlgorithm.values()) {
-            if (sa.getTransformation().equals(algorithm))
-                this.algorithm = sa;
-        }
+    public AlgorithmParameterSpec getIv() {
+        return this.parameterSpec;
+    }
+
+    public String[] findKeySizes() {
+        if (this.algorithm == null)
+            return new String[0];
+
+        this.keySize = this.algorithm.getKeySizes()[0];
 
         return Arrays.stream(this.algorithm.getKeySizes())
                 .mapToObj(String::valueOf)
                 .toArray(String[]::new);
+    }
+
+    public SymmetricAlgorithm findSymmetricAlgorithm(String algorithm) {
+        for (SymmetricAlgorithm sa : SymmetricAlgorithm.values()) {
+            if (sa.getTransformation().equals(algorithm)) {
+                this.algorithm = sa;
+                return sa;
+            }
+        }
+        return null;
     }
 }

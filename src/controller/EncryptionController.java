@@ -25,7 +25,7 @@ public class EncryptionController {
         currentController.encrypt(data);
     };
 
-    public void decrypt(String data) {
+    public void decrypt(String data) throws Exception{
         currentController.decrypt(data);
     }
 

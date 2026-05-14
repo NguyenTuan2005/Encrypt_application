@@ -1,12 +1,18 @@
 package controller.strategy;
 
+import cipher.FileHelper;
+import cipher.symmetric.modern.ChaCha20Symmetric;
+import cipher.symmetric.modern.GCMMode;
 import cipher.symmetric.modern.ModernSymmetric;
+import cipher.symmetric.modern.NoIVSymmetric;
 import enums.InputType;
 import enums.SymmetricAlgorithm;
 import view.bottom.BottomPanel;
 import view.top.SymmetricCard;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 public class ModernSymmetricControllerStrategy implements CipherControllerStrategy {
@@ -22,6 +28,19 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
         this.view = view;
     }
 
+    public void setModernSymmetric(String algorithm) {
+        SymmetricAlgorithm sa = this.modernSymmetric.findSymmetricAlgorithm(algorithm);
+        if (sa == null)
+            return;
+        this.modernSymmetric = new ModernSymmetric(sa);
+        if (algorithm.contains("GCM"))
+            this.modernSymmetric = new GCMMode(sa);
+        if ("ChaCha20".equals(algorithm))
+            this.modernSymmetric = new ChaCha20Symmetric(sa);
+        if (sa.getParameterSpecSize() == 0)
+            this.modernSymmetric = new NoIVSymmetric(sa);
+    }
+
     @Override
     public void encrypt(String data) throws Exception{
         view.saveConfig(modernSymmetric);
@@ -33,29 +52,27 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
             case FILE_TYPE: {
                 File file = new File(data);
                 if (!file.isFile()) throw new Exception("Đường dẫn không phải là tệp");
-                this.modernSymmetric.encryptFile(data, file.getParent() + "/encrypt.txt");
+                this.modernSymmetric.encryptFile(data, file.getParent() + "/encrypt" + FileHelper.getExtension(file));
+                BottomPanel.updateResult("Đã mã hóa thành công");
                 break;
             }
         }
     }
 
     @Override
-    public void decrypt(String data) {
-        try {
-            switch (type) {
-                case TEXT_TYPE: {
-                    BottomPanel.updateResult(this.modernSymmetric.decryptText(data));
-                    break;
-                }
-                case FILE_TYPE: {
-                    File file = new File(data);
-                    if (!file.isFile()) throw new Exception("Đường dẫn không phải là tệp");
-                    this.modernSymmetric.decryptFile(data, file.getParent() + "/decrypt.txt");
-                    break;
-                }
+    public void decrypt(String data) throws Exception{
+        switch (type) {
+            case TEXT_TYPE: {
+                BottomPanel.updateResult(this.modernSymmetric.decryptText(data));
+                break;
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+            case FILE_TYPE: {
+                File file = new File(data);
+                if (!file.isFile()) throw new Exception("Đường dẫn không phải là tệp");
+                this.modernSymmetric.decryptFile(data, file.getParent() + "/decrypt" + FileHelper.getExtension(file));
+                BottomPanel.updateResult("Đã giải mã thành công");
+                break;
+            }
         }
     }
 
@@ -80,7 +97,29 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
         return this.modernSymmetric.genIV();
     }
 
-    public String[] findKeySizes(String algorithm) {
-        return this.modernSymmetric.findKeySizes(algorithm);
+    public String[] findKeySizes() {
+        return this.modernSymmetric.findKeySizes();
+    }
+
+    public void exportKey(File des) throws IOException {
+        String result ="Đã xuất khóa cho bạn";
+        if (!this.modernSymmetric.exportKey(des))
+            result = "Không thể xuất khóa cho bạn";
+        BottomPanel.updateResult(result);
+    }
+
+    public String importKey(File src) throws IOException {
+        return this.modernSymmetric.importKey(src);
+    }
+
+    public void exportIV(File des) throws IOException {
+        String result = "Đã xuất IV cho bạn";
+        if (!this.modernSymmetric.exportIV(des))
+            result = "Không thể xuất IV cho bạn";
+        BottomPanel.updateResult(result);
+    }
+
+    public String importIV(File src) throws IOException {
+        return this.modernSymmetric.importIV(src);
     }
 }

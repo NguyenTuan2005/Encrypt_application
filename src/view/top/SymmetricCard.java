@@ -7,6 +7,7 @@ import view.bottom.BottomPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.Arrays;
 
 public class SymmetricCard extends JPanel {
@@ -17,6 +18,7 @@ public class SymmetricCard extends JPanel {
     private ButtonGroup buttonGroup;
     private JRadioButton[] rbKeySizes;
     private JPanel keySizePanel;
+    private JFileChooser fileChooser;
     private ModernSymmetricControllerStrategy controller = (ModernSymmetricControllerStrategy) EncryptionController.getInstance().get("Modern");
 
     public SymmetricCard() {
@@ -41,6 +43,7 @@ public class SymmetricCard extends JPanel {
     }
 
     private void addEvent() {
+        fileChooser = new JFileChooser();
         btnGenKey.addActionListener(e -> {
             try {
                 tfSecretKey.setText(controller.genKey());
@@ -55,12 +58,63 @@ public class SymmetricCard extends JPanel {
 
         cbAlgorithm.addActionListener(e -> {
             String selected = (String) cbAlgorithm.getSelectedItem();
-            updateKeySize(selected);
+            controller.setModernSymmetric(selected);
+            updateKeySize();
+            tfSecretKey.setText("");
+            tfIV.setText("");
+        });
+
+        btnExportKey.addActionListener(e -> {
+            int result = fileChooser.showSaveDialog(SymmetricCard.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                try {
+                    controller.exportKey(file);
+                } catch (Exception ex) {
+                    BottomPanel.updateResult(ex.getMessage());
+                }
+            }
+        });
+
+        btnImportKey.addActionListener(e -> {
+            int result = fileChooser.showOpenDialog(SymmetricCard.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                try {
+                    tfSecretKey.setText(controller.importKey(file));
+                } catch (Exception ex) {
+                    BottomPanel.updateResult(ex.getMessage());
+                }
+            }
+        });
+
+        btnExportIV.addActionListener(e -> {
+            int result = fileChooser.showSaveDialog(SymmetricCard.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                try {
+                    controller.exportIV(file);
+                } catch (Exception ex) {
+                    BottomPanel.updateResult(ex.getMessage());
+                }
+            }
+        });
+
+        btnImportIV.addActionListener(e -> {
+            int result = fileChooser.showOpenDialog(SymmetricCard.this);
+            if (result == JFileChooser.APPROVE_OPTION) {
+                File file = fileChooser.getSelectedFile();
+                try {
+                    tfIV.setText(controller.importIV(file));
+                } catch (Exception ex) {
+                    BottomPanel.updateResult(ex.getMessage());
+                }
+            }
         });
     }
 
-    private void updateKeySize(String algorithm) {
-        String[] keySizes = controller.findKeySizes(algorithm);
+    private void updateKeySize() {
+        String[] keySizes = controller.findKeySizes();
 
         keySizePanel.removeAll();
         buttonGroup = new ButtonGroup();
