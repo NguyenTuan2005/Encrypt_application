@@ -24,8 +24,11 @@ public enum SymmetricAlgorithm {
 
     RC2_CBC_NOPADDING("RC2/CBC/NoPadding", "RC2", new int[]{40, 64, 128}, 8),
 
-    ARCFOUR("ARCFOUR", "ARCFOUR", new int[]{40, 56, 128, 256}, 0);
+    ARCFOUR("ARCFOUR", "ARCFOUR", new int[]{40, 56, 128, 256}, 0),
 
+    CAMELLIA_CBC_NOPADDING("Camellia/CBC/NoPadding", "Camellia", new int[]{128, 192, 256}, 16),
+    CAST5_CBC_NOPADDING("CAST5/CBC/NoPadding", "CAST5", new int[]{40, 80, 128}, 8),
+    TWOFISH_CBC_NOPADDING("Twofish/CBC/NoPadding", "Twofish", new int[]{128, 192, 256}, 16);
     private final String transformation;
     private final String algorithm;
     private final int[] keySize;

@@ -1,19 +1,16 @@
 package controller.strategy;
 
 import cipher.FileHelper;
-import cipher.symmetric.modern.ChaCha20Symmetric;
-import cipher.symmetric.modern.GCMMode;
-import cipher.symmetric.modern.ModernSymmetric;
-import cipher.symmetric.modern.NoIVSymmetric;
+import cipher.symmetric.modern.*;
 import enums.InputType;
 import enums.SymmetricAlgorithm;
 import view.bottom.BottomPanel;
 import view.top.SymmetricCard;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 
 public class ModernSymmetricControllerStrategy implements CipherControllerStrategy {
     private ModernSymmetric modernSymmetric;
@@ -34,11 +31,13 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
             return;
         this.modernSymmetric = new ModernSymmetric(sa);
         if (algorithm.contains("GCM"))
-            this.modernSymmetric = new GCMMode(sa);
+            this.modernSymmetric = new GCMModeSymmetric(sa);
         if ("ChaCha20".equals(algorithm))
             this.modernSymmetric = new ChaCha20Symmetric(sa);
         if (sa.getParameterSpecSize() == 0)
             this.modernSymmetric = new NoIVSymmetric(sa);
+        if (algorithm.contains("Camellia") || algorithm.contains("CAST5") || algorithm.contains("KASUMI"))
+            this.modernSymmetric = new BcProviderSymmetric(sa);
     }
 
     @Override
@@ -89,7 +88,7 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
         return this.modernSymmetric.getKeySizes();
     }
 
-    public String genKey() throws NoSuchAlgorithmException {
+    public String genKey() throws NoSuchAlgorithmException, NoSuchProviderException {
         return this.modernSymmetric.genKey();
     }
 

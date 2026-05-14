@@ -9,8 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Base64;
 
-public class GCMMode extends ModernSymmetric{
-    public GCMMode(SymmetricAlgorithm algorithm) {
+public class GCMModeSymmetric extends ModernSymmetric{
+    public GCMModeSymmetric(SymmetricAlgorithm algorithm) {
         super(algorithm);
     }
 

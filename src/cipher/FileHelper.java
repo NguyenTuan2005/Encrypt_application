@@ -1,10 +1,8 @@
 package cipher;
 
 import javax.crypto.*;
-import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
-import java.security.spec.AlgorithmParameterSpec;
 
 public class FileHelper {
     public static void copy(String src, String des, Cipher cipher) throws IOException, IllegalBlockSizeException, BadPaddingException {
