@@ -9,6 +9,7 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 
 public class FileHelper {
     public static void copy(String src, String des, Cipher cipher) throws IOException, IllegalBlockSizeException, BadPaddingException {
@@ -17,7 +18,7 @@ public class FileHelper {
         CipherInputStream in = new CipherInputStream(input, cipher);
 
         int i;
-        byte[] read = new byte[102400];
+        byte[] read = new byte[1024];
         while ((i = in.read(read)) != -1) {
             out.write(read, 0, i);
         }
@@ -32,7 +33,7 @@ public class FileHelper {
         CipherInputStream in = new CipherInputStream(input, cipher);
 
         int i;
-        byte[] read = new byte[102400];
+        byte[] read = new byte[1024];
         while ((i = in.read(read)) != -1) {
             out.write(read, 0, i);
         }
@@ -46,7 +47,7 @@ public class FileHelper {
         CipherInputStream in = new CipherInputStream(input, cipher);
 
         int i;
-        byte[] read = new byte[102400];
+        byte[] read = new byte[1024];
         while ((i = in.read(read)) != -1) {
             out.write(read, 0, i);
         }
@@ -66,32 +67,32 @@ public class FileHelper {
 
     public static void exportKey(byte[] key, File des) throws IOException {
         String result = des.isDirectory() ? des.getPath() + "/key.txt" : des.getPath();
-        FileOutputStream out = new FileOutputStream(result);
-        out.write(key);
+        PrintWriter out = new PrintWriter(result);
+        out.write(Base64.getEncoder().encodeToString(key));
         out.flush();
         out.close();
     }
 
     public static SecretKey importKey(File src, String algorithm) throws IOException {
-        FileInputStream in = new FileInputStream(src);
-        byte[] key = in.readAllBytes();
+        BufferedReader in = new BufferedReader(new FileReader(src));
+        String key = in.readLine();
         in.close();
-        return new SecretKeySpec(key, algorithm);
+        return new SecretKeySpec(Base64.getDecoder().decode(key), algorithm);
     }
 
     public static void exportIV(byte[] iv, File des) throws IOException {
         String result = des.isDirectory() ? des.getPath() + "/iv.txt" : des.getPath();
-        FileOutputStream out = new FileOutputStream(result);
-        out.write(iv);
+        PrintWriter out = new PrintWriter(result);
+        out.write(Base64.getEncoder().encodeToString(iv));
         out.flush();
         out.close();
     }
 
     public static byte[] importIV(File src) throws IOException {
-        FileInputStream in = new FileInputStream(src);
-        byte[] key = in.readAllBytes();
+        BufferedReader in = new BufferedReader(new FileReader(src));
+        String iv = in.readLine();
         in.close();
-        return key;
+        return Base64.getDecoder().decode(iv);
     }
 
 
@@ -113,21 +114,21 @@ public class FileHelper {
     }
 
     public static PublicKey importPublicKey(File src, String algorithm) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
-        FileInputStream in = new FileInputStream(src);
-        byte[] key = in.readAllBytes();
+        BufferedReader in = new BufferedReader(new FileReader(src));
+        String key = in.readLine();
         in.close();
 
-        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(key);
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(Base64.getDecoder().decode(key));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
         return keyFactory.generatePublic(keySpec);
     }
 
     public static PrivateKey importPrivateKey(File src, String algorithm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
-        FileInputStream in = new FileInputStream(src);
-        byte[] key = in.readAllBytes();
+        BufferedReader in = new BufferedReader(new FileReader(src));
+        String key = in.readLine();
         in.close();
 
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(key));
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
         return keyFactory.generatePrivate(keySpec);
     }

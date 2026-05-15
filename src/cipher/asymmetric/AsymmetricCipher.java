@@ -15,7 +15,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
 public class AsymmetricCipher implements TextEncryption {
-    protected Asymmetric asymmetric;
+    private Asymmetric asymmetric;
 
     public AsymmetricCipher(AsymmetricAlgorithm algorithm) {
         this.asymmetric = new Asymmetric(algorithm);

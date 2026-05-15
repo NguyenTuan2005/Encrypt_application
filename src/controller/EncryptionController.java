@@ -1,6 +1,7 @@
 package controller;
 
 import controller.strategy.CipherControllerStrategy;
+import controller.strategy.HashControllerStrategy;
 import enums.InputType;
 
 import java.util.HashMap;
@@ -27,6 +28,12 @@ public class EncryptionController {
 
     public void decrypt(String data) throws Exception{
         currentController.decrypt(data);
+    }
+
+    public void genHash(String data) throws Exception{
+        if (currentController.getClass() == HashControllerStrategy.class) {
+            ((HashControllerStrategy) currentController).genHash(data);
+        }
     }
 
     public void inputTypeChanged(InputType type) {

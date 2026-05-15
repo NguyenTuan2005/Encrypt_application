@@ -48,8 +48,6 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
             this.modernSymmetricCipher = new ChaCha20SymmetricCipher(sa);
         if (sa.getParameterSpecSize() == 0)
             this.modernSymmetricCipher = new NoIVSymmetricCipher(sa);
-        if (algorithm.contains("Camellia") || algorithm.contains("CAST5") || algorithm.contains("KASUMI"))
-            this.modernSymmetricCipher = new BcProviderSymmetricCipher(sa);
     }
 
     @Override

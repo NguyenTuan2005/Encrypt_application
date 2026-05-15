@@ -7,6 +7,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -48,30 +49,28 @@ public class GCMModeSymmetricCipher extends ModernSymmetricCipher {
 
     @Override
     public void encryptCopy(Cipher cipher, DataOutputStream out) throws IOException, IllegalBlockSizeException, BadPaddingException {
+        Base64.Encoder encoder = Base64.getEncoder();
         byte[] encrypted = cipher.doFinal(String.valueOf(this.symmetric.getKeySize()).getBytes(StandardCharsets.UTF_8));
-        out.writeInt(encrypted.length);
-        out.write(encrypted);
+        out.writeUTF(encoder.encodeToString(encrypted));
         encrypted = cipher.doFinal(this.symmetric.getTransformation().getBytes(StandardCharsets.UTF_8));
-        out.writeInt(encrypted.length);
-        out.write(encrypted);
+        out.writeUTF(encoder.encodeToString(encrypted));
         encrypted = cipher.doFinal(this.symmetric.getSecretKey().getEncoded());
-        out.writeInt(encrypted.length);
-        out.write(encrypted);
+        out.writeUTF(encoder.encodeToString(encrypted));
         encrypted = cipher.doFinal(((GCMParameterSpec) this.symmetric.getIv()).getIV());
-        out.writeInt(encrypted.length);
-        out.write(encrypted);
+        out.writeUTF(encoder.encodeToString(encrypted));
     }
 
     @Override
     public void decryptCopy(Cipher cipher, DataInputStream in) throws IOException, IllegalBlockSizeException, BadPaddingException {
-        byte[] rawKeySize = in.readNBytes(in.readInt());
+        Base64.Decoder decoder = Base64.getDecoder();
+        byte[] rawKeySize = decoder.decode(in.readUTF());
         this.symmetric.setKeySize(Integer.parseInt(new String(cipher.doFinal(rawKeySize), StandardCharsets.UTF_8)));
-        byte[] transformation = in.readNBytes(in.readInt());
+        byte[] transformation = decoder.decode(in.readUTF());
         SymmetricAlgorithm sa = findSymmetricAlgorithm(new String(cipher.doFinal(transformation), StandardCharsets.UTF_8));
         this.symmetric.setSymmetricAlgorithm(sa);
-        byte[] secretKey = in.readNBytes(in.readInt());
+        byte[] secretKey = decoder.decode(in.readUTF());
         this.symmetric.setSecretKey(new SecretKeySpec(cipher.doFinal(secretKey), this.symmetric.getAlgorithmName()));
-        byte[] parameterSpec = in.readNBytes(in.readInt());
+        byte[] parameterSpec = decoder.decode(in.readUTF());
         this.symmetric.setAlgorithmParameterSpec(new GCMParameterSpec(128, cipher.doFinal(parameterSpec)));
     }
 }

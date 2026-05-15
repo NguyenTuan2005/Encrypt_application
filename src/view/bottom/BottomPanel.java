@@ -10,10 +10,11 @@ import java.awt.*;
 
 public class BottomPanel extends JPanel {
     private JLabel lblResult;
-    private JButton btnEncrypt, btnDecrypt;
+    private JButton btnEncrypt, btnDecrypt, btnGenHash;
     private static JTextArea txtResult;
     private JScrollPane scrollPane;
     private CenterPanel centerPanel;
+    private static JPanel currentPanel, cipherPanel, hashPanel;
     private EncryptionController controller = EncryptionController.getInstance();
 
     public BottomPanel(CenterPanel centerPanel) {
@@ -21,17 +22,21 @@ public class BottomPanel extends JPanel {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createLineBorder(ColorView.BORDER_COLOR));
 
-        JPanel panel = new JPanel(new BorderLayout());
+        currentPanel = new JPanel(new BorderLayout());
         lblResult = new JLabel("  Kết quả:");
-        panel.add(lblResult, BorderLayout.WEST);
+        currentPanel.add(lblResult, BorderLayout.WEST);
 
-        JPanel btnPanel = new JPanel(new FlowLayout());
+        cipherPanel = new JPanel(new FlowLayout());
         btnEncrypt = new JButton("Mã hóa");
         btnDecrypt = new JButton("Giải mã");
-        btnPanel.add(btnEncrypt);
-        btnPanel.add(btnDecrypt);
-        panel.add(btnPanel, BorderLayout.EAST);
-        add(panel, BorderLayout.NORTH);
+        cipherPanel.add(btnEncrypt);
+        cipherPanel.add(btnDecrypt);
+        currentPanel.add(cipherPanel, BorderLayout.EAST);
+        add(currentPanel, BorderLayout.NORTH);
+
+        hashPanel = new JPanel();
+        btnGenHash = new JButton(" Tạo mã băm");
+        hashPanel.add(btnGenHash);
 
         txtResult = new JTextArea();
         txtResult.setPreferredSize(new Dimension(100, 100));
@@ -42,6 +47,18 @@ public class BottomPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         addEvent();
+    }
+
+    public static void toggleHash(boolean toggle) {
+        if (toggle) {
+            currentPanel.remove(cipherPanel);
+            currentPanel.add(hashPanel, BorderLayout.EAST);
+        } else {
+            currentPanel.remove(hashPanel);
+            currentPanel.add(cipherPanel, BorderLayout.EAST);
+        }
+        currentPanel.revalidate();
+        currentPanel.repaint();
     }
 
     private void addEvent() {
@@ -58,6 +75,15 @@ public class BottomPanel extends JPanel {
             try {
                 String data = centerPanel.getData();
                 controller.decrypt(data);
+            } catch (Exception ex) {
+                txtResult.setText(ex.getMessage());
+            }
+        });
+
+        btnGenHash.addActionListener(e -> {
+            try {
+                String data = centerPanel.getData();
+                controller.genHash(data);
             } catch (Exception ex) {
                 txtResult.setText(ex.getMessage());
             }
