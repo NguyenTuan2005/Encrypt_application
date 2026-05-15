@@ -18,6 +18,8 @@ public class CenterPanel extends JPanel {
 
         add(textInputCard, "TEXT");
         add(fileInputCard, "FILE");
+
+        toggleFile(false);
     }
 
     public void showText() {
@@ -38,5 +40,14 @@ public class CenterPanel extends JPanel {
                 return fileInputCard.getData();
         }
         return null;
+    }
+
+    public void toggleFile(boolean toggle) {
+        if (toggle) {
+            textInputCard.enableToggle();
+        } else {
+            showText();
+            textInputCard.disableToggle();
+        }
     }
 }

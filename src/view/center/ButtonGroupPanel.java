@@ -40,4 +40,14 @@ public class ButtonGroupPanel extends JPanel {
             runnable.run();
         });
     }
+
+    public void disableToggle() {
+        this.rbFile.setEnabled(false);
+        this.rbText.setEnabled(false);
+    }
+
+    public void enableToggle() {
+        this.rbFile.setEnabled(true);
+        this.rbText.setEnabled(true);
+    }
 }

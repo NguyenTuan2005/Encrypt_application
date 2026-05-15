@@ -7,6 +7,7 @@ public class TextInputCard extends JPanel {
     private JLabel lblText;
     private JTextArea txtInput;
     private JScrollPane scrollPane;
+    private ButtonGroupPanel buttonGroupPanel;
 
     public TextInputCard(Runnable runnable) {
         setLayout(new BorderLayout());
@@ -16,7 +17,7 @@ public class TextInputCard extends JPanel {
         lblText = new JLabel("  Nhập văn bản");
         panel.add(lblText, BorderLayout.WEST);
 
-        ButtonGroupPanel buttonGroupPanel = new ButtonGroupPanel();
+        buttonGroupPanel = new ButtonGroupPanel();
         buttonGroupPanel.addActionRbFile(runnable);
         panel.add(buttonGroupPanel, BorderLayout.EAST);
         add(panel, BorderLayout.NORTH);
@@ -31,5 +32,13 @@ public class TextInputCard extends JPanel {
 
     public String getData() {
         return txtInput.getText();
+    }
+
+    public void disableToggle() {
+        buttonGroupPanel.disableToggle();
+    }
+
+    public void enableToggle() {
+        buttonGroupPanel.enableToggle();
     }
 }

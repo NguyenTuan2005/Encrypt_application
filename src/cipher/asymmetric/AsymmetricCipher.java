@@ -1,7 +1,7 @@
 package cipher.asymmetric;
 
 import utils.FileHelper;
-import cipher.TextEncryption;
+import cipher.TextCipher;
 import cipher.symmetric.modern.ModernSymmetricCipher;
 import enums.AsymmetricAlgorithm;
 import model.Asymmetric;
@@ -14,7 +14,7 @@ import java.security.*;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
-public class AsymmetricCipher implements TextEncryption {
+public class AsymmetricCipher implements TextCipher {
     private Asymmetric asymmetric;
 
     public AsymmetricCipher(AsymmetricAlgorithm algorithm) {

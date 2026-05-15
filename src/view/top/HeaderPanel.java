@@ -1,10 +1,10 @@
 package view.top;
 
 import controller.EncryptionController;
-import controller.ILanguage;
 import controller.LanguageController;
 import controller.strategy.ModernSymmetricControllerStrategy;
 import view.bottom.BottomPanel;
+import view.center.CenterPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,9 +13,11 @@ public class HeaderPanel extends JPanel {
     private JMenuBar menuBar;
     private JMenu menu;
     private JMenuItem symmetricTraditionalItem,symmetricModernItem, asymmetricItem, hashItem, enItem, vnItem;
+    private CenterPanel centerPanel;
     private EncryptionController controller = EncryptionController.getInstance();
 
-    public HeaderPanel() {
+    public HeaderPanel(CenterPanel centerPanel) {
+        this.centerPanel = centerPanel;
         setLayout(new FlowLayout(FlowLayout.LEFT));
 
         menuBar = new JMenuBar();
@@ -53,27 +55,31 @@ public class HeaderPanel extends JPanel {
             configPanel.showTraditionalSymmetric();
             controller.setCurrentController("Tradition");
             BottomPanel.toggleHash(false);
+            centerPanel.toggleFile(false);
         });
         symmetricModernItem.addActionListener(e -> {
             configPanel.showSymmetric();
             controller.setCurrentController("Modern");
             ModernSymmetricControllerStrategy.setView(1);
             BottomPanel.toggleHash(false);
+            centerPanel.toggleFile(true);
         });
         asymmetricItem.addActionListener(e -> {
             configPanel.showAsymmetric();
             controller.setCurrentController("Asymmetric");
             ModernSymmetricControllerStrategy.setView(2);
             BottomPanel.toggleHash(false);
+            centerPanel.toggleFile(true);
         });
         hashItem.addActionListener(e -> {
             configPanel.showHash();
             controller.setCurrentController("Hash");
             BottomPanel.toggleHash(true);
+            centerPanel.toggleFile(true);
         });
     }
 
-    public void addLanguageEvent(ILanguage languageController) {
+    public void addLanguageEvent(LanguageController languageController) {
         enItem.addActionListener(e -> languageController.setEnglishLanguage());
         vnItem.addActionListener(e -> languageController.setVietnameseLanguage());
     }

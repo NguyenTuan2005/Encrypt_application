@@ -22,8 +22,8 @@ public class EncryptApplication extends JFrame {
     }
 
     public void initial() {
-        topPanel = new TopPanel();
         centerPanel = new CenterPanel();
+        topPanel = new TopPanel(centerPanel);
         bottomPanel = new BottomPanel(centerPanel);
         add(topPanel, BorderLayout.WEST);
 

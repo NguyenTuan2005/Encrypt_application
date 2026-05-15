@@ -1,8 +1,8 @@
 package cipher.symmetric.modern;
 
-import cipher.FileEncryption;
+import cipher.FileCipher;
 import utils.FileHelper;
-import cipher.TextEncryption;
+import cipher.TextCipher;
 import enums.SymmetricAlgorithm;
 import model.Symmetric;
 
@@ -20,7 +20,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Base64;
 
-public class ModernSymmetricCipher implements TextEncryption, FileEncryption {
+public class ModernSymmetricCipher implements TextCipher, FileCipher {
     protected Symmetric symmetric;
 
     public ModernSymmetricCipher(SymmetricAlgorithm algorithm) {

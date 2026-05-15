@@ -2,6 +2,7 @@ import controller.EncryptionController;
 import controller.strategy.AsymmetricControllerStrategy;
 import controller.strategy.HashControllerStrategy;
 import controller.strategy.ModernSymmetricControllerStrategy;
+import controller.strategy.TraditionSymmetricControllerStrategy;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import view.EncryptApplication;
 
@@ -17,6 +18,7 @@ public class Main {
         controller.put("Modern", new ModernSymmetricControllerStrategy());
         controller.put("Asymmetric", new AsymmetricControllerStrategy());
         controller.put("Hash", new HashControllerStrategy());
+        controller.put("Tradition", new TraditionSymmetricControllerStrategy());
 
         EncryptApplication encryptApplication = new EncryptApplication();
         encryptApplication.showApp();

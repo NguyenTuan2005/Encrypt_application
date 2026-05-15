@@ -3,10 +3,10 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Language implements ILanguageModel, Observable {
+public class Language implements ILanguageModel {
     private static Language instance;
     private final List<Observer> observers;
-    private int alphabetSize = ENGLISH_ALPHABET;
+    private int alphabetSize = ENGLISH_ALPHABET_SIZE;
 
     private Language() {
         observers = new ArrayList<>();
@@ -20,13 +20,13 @@ public class Language implements ILanguageModel, Observable {
 
     @Override
     public void setEnglish() {
-        alphabetSize = ENGLISH_ALPHABET;
+        alphabetSize = ENGLISH_ALPHABET_SIZE;
         notifyObservers();
     }
 
     @Override
     public void setVietnamese() {
-        alphabetSize = VIETNAM_ALPHABET;
+        alphabetSize = VIETNAM_ALPHABET_SIZE;
         notifyObservers();
     }
 
