@@ -1,9 +1,11 @@
 package cipher.symmetric.modern;
 
-import cipher.FileHelper;
+import utils.FileHelper;
 import enums.SymmetricAlgorithm;
 
 import javax.crypto.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -54,5 +56,19 @@ public class BcProviderSymmetricCipher extends ModernSymmetricCipher {
         cipher.init(Cipher.DECRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
         byte[] data = Base64.getDecoder().decode(cipherText);
         return new String(cipher.doFinal(data), StandardCharsets.UTF_8);
+    }
+
+    @Override
+    public void encryptFile(String src, DataOutputStream out) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, IOException, BadPaddingException, NoSuchProviderException {
+        Cipher cipher = Cipher.getInstance(symmetric.getTransformation(), "BC");
+        cipher.init(Cipher.ENCRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
+        FileHelper.copy(src, out, cipher);
+    }
+
+    @Override
+    public void decryptFile(DataInputStream in, String des) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, IOException, BadPaddingException, NoSuchProviderException {
+        Cipher cipher = Cipher.getInstance(symmetric.getTransformation(), "BC");
+        cipher.init(Cipher.DECRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
+        FileHelper.copy(in, des, cipher);
     }
 }

@@ -1,7 +1,7 @@
 package cipher.symmetric.modern;
 
 import cipher.FileEncryption;
-import cipher.FileHelper;
+import utils.FileHelper;
 import cipher.TextEncryption;
 import enums.SymmetricAlgorithm;
 import model.Symmetric;
@@ -18,7 +18,6 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
-import java.util.Arrays;
 import java.util.Base64;
 
 public class ModernSymmetricCipher implements TextEncryption, FileEncryption {
@@ -49,7 +48,7 @@ public class ModernSymmetricCipher implements TextEncryption, FileEncryption {
         FileHelper.copy(src, des, cipher);
     }
 
-    public void encryptFile(String src, DataOutputStream out) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, IOException, BadPaddingException {
+    public void encryptFile(String src, DataOutputStream out) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, IOException, BadPaddingException, NoSuchProviderException {
         Cipher cipher = Cipher.getInstance(symmetric.getTransformation());
         cipher.init(Cipher.ENCRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
         FileHelper.copy(src, out, cipher);
@@ -62,7 +61,7 @@ public class ModernSymmetricCipher implements TextEncryption, FileEncryption {
         FileHelper.copy(src, des, cipher);
     }
 
-    public void decryptFile(DataInputStream in, String des) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, IOException, BadPaddingException {
+    public void decryptFile(DataInputStream in, String des) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, IOException, BadPaddingException, NoSuchProviderException {
         Cipher cipher = Cipher.getInstance(symmetric.getTransformation());
         cipher.init(Cipher.DECRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
         FileHelper.copy(in, des, cipher);

@@ -1,13 +1,14 @@
-package cipher;
+package utils;
 
 import cipher.symmetric.modern.ModernSymmetricCipher;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 
 public class FileHelper {
     public static void copy(String src, String des, Cipher cipher) throws IOException, IllegalBlockSizeException, BadPaddingException {
@@ -20,9 +21,6 @@ public class FileHelper {
         while ((i = in.read(read)) != -1) {
             out.write(read, 0, i);
         }
-        read = cipher.doFinal();
-        if (read != null)
-            out.write(read);
         in.close();
         out.flush();
         out.close();
@@ -97,7 +95,7 @@ public class FileHelper {
     }
 
 
-    public static void encryptCopy(ModernSymmetricCipher symmetricCipher, String src, String des, Cipher cipher) throws IOException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public static void encryptCopy(ModernSymmetricCipher symmetricCipher, String src, String des, Cipher cipher) throws IOException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException {
         DataOutputStream out = new DataOutputStream(new FileOutputStream(des));
         symmetricCipher.encryptCopy(cipher, out);
         symmetricCipher.encryptFile(src, out);
@@ -106,11 +104,31 @@ public class FileHelper {
         out.close();
     }
 
-    public static void decryptCopy(ModernSymmetricCipher symmetricCipher, String src, String des, Cipher cipher) throws IOException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException {
+    public static void decryptCopy(ModernSymmetricCipher symmetricCipher, String src, String des, Cipher cipher) throws IOException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, NoSuchProviderException {
         DataInputStream in = new DataInputStream(new FileInputStream(src));
         symmetricCipher.decryptCopy(cipher, in);
         symmetricCipher.decryptFile(in, des);
 
         in.close();
+    }
+
+    public static PublicKey importPublicKey(File src, String algorithm) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        FileInputStream in = new FileInputStream(src);
+        byte[] key = in.readAllBytes();
+        in.close();
+
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(key);
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+        return keyFactory.generatePublic(keySpec);
+    }
+
+    public static PrivateKey importPrivateKey(File src, String algorithm) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+        FileInputStream in = new FileInputStream(src);
+        byte[] key = in.readAllBytes();
+        in.close();
+
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(key);
+        KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
+        return keyFactory.generatePrivate(keySpec);
     }
 }

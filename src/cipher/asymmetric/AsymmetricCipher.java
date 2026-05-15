@@ -1,7 +1,6 @@
 package cipher.asymmetric;
 
-import cipher.FileEncryption;
-import cipher.FileHelper;
+import utils.FileHelper;
 import cipher.TextEncryption;
 import cipher.symmetric.modern.ModernSymmetricCipher;
 import enums.AsymmetricAlgorithm;
@@ -12,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.*;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
 
 public class AsymmetricCipher implements TextEncryption {
@@ -30,13 +30,13 @@ public class AsymmetricCipher implements TextEncryption {
         return new String[] {Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded()), Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded())};
     }
 
-    public void encryptFile(ModernSymmetricCipher modernSymmetricCipher, String src, String des) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException {
+    public void encryptFile(ModernSymmetricCipher modernSymmetricCipher, String src, String des) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException, InvalidAlgorithmParameterException, NoSuchProviderException {
         Cipher cipher = Cipher.getInstance(asymmetric.getTransformation());
         cipher.init(Cipher.ENCRYPT_MODE, asymmetric.getPublicKey());
         FileHelper.encryptCopy(modernSymmetricCipher, src, des, cipher);
     }
 
-    public void decryptFile(ModernSymmetricCipher modernSymmetricCipher, String src, String des) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, IOException, BadPaddingException {
+    public void decryptFile(ModernSymmetricCipher modernSymmetricCipher, String src, String des) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException, IllegalBlockSizeException, IOException, BadPaddingException, NoSuchProviderException {
         Cipher cipher = Cipher.getInstance(asymmetric.getTransformation());
         cipher.init(Cipher.DECRYPT_MODE, asymmetric.getPrivateKey());
         FileHelper.decryptCopy(modernSymmetricCipher, src, des, cipher);
@@ -60,19 +60,25 @@ public class AsymmetricCipher implements TextEncryption {
         return new String(cipher.doFinal(data), StandardCharsets.UTF_8);
     }
 
-    public String importPublicKey(File src) throws IOException {
-        return null;
+    public String importPublicKey(File src) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        this.asymmetric.setPublicKey(FileHelper.importPublicKey(src, this.asymmetric.getAlgorithmName()));
+        return Base64.getEncoder().encodeToString(this.asymmetric.getPublicKey().getEncoded());
     }
 
     public boolean exportPublicKey(File des) throws IOException {
+        if (this.asymmetric.getPublicKey() == null) return false;
+        FileHelper.exportKey(this.asymmetric.getPublicKey().getEncoded(), des);
         return true;
     }
 
-    public String importPrivateKey(File src) throws IOException {
-        return null;
+    public String importPrivateKey(File src) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+        this.asymmetric.setPrivateKey(FileHelper.importPrivateKey(src, this.asymmetric.getAlgorithmName()));
+        return Base64.getEncoder().encodeToString(this.asymmetric.getPublicKey().getEncoded());
     }
 
     public boolean exportPrivateKey(File des) throws IOException {
+        if (this.asymmetric.getPrivateKey() == null) return false;
+        FileHelper.exportKey(this.asymmetric.getPrivateKey().getEncoded(), des);
         return true;
     }
 

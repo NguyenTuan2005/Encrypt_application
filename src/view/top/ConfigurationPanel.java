@@ -1,5 +1,7 @@
 package view.top;
 
+import controller.EncryptionController;
+import controller.strategy.ModernSymmetricControllerStrategy;
 import model.ILanguageModel;
 import model.Language;
 
@@ -23,6 +25,8 @@ public class ConfigurationPanel extends JPanel {
         language.addObserver(traditionalSymmetricCard);
 
         symmetricCard = new SymmetricCard();
+        ModernSymmetricControllerStrategy.setView(symmetricCard);
+
         asymmetricCard = new AsymmetricCard();
         hashCard = new HashCard();
         add(traditionalSymmetricCard, "TSYM");

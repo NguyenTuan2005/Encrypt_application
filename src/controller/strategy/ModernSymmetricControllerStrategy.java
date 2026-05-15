@@ -1,6 +1,6 @@
 package controller.strategy;
 
-import cipher.FileHelper;
+import utils.FileHelper;
 import cipher.symmetric.modern.*;
 import enums.InputType;
 import enums.SymmetricAlgorithm;
@@ -11,18 +11,30 @@ import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ModernSymmetricControllerStrategy implements CipherControllerStrategy {
     private ModernSymmetricCipher modernSymmetricCipher;
-    private SymmetricCard view;
+    private static Map<Integer, SymmetricCard> view;
+    private static SymmetricCard currentView;
     private InputType type = InputType.TEXT_TYPE;
 
     public ModernSymmetricControllerStrategy() {
         this.modernSymmetricCipher = new ModernSymmetricCipher(SymmetricAlgorithm.AES_CBC_PKCS5PADDING);
+        view = new HashMap<>();
     }
 
-    public void setView(SymmetricCard view) {
-        this.view = view;
+    public static void setView(SymmetricCard symmetricCard) {
+        view.put(view.size() + 1, symmetricCard);
+    }
+
+    public static void setView(int position) {
+        currentView = view.get(position);
+    }
+
+    public static SymmetricCard getCurrentView() {
+        return currentView;
     }
 
     public void setModernSymmetric(String algorithm) {
@@ -42,7 +54,7 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
 
     @Override
     public void encrypt(String data) throws Exception{
-        view.saveConfig(modernSymmetricCipher);
+        currentView.saveConfig(modernSymmetricCipher);
         switch (type) {
             case TEXT_TYPE: {
                 BottomPanel.updateResult(this.modernSymmetricCipher.encryptText(data));
@@ -56,11 +68,12 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
                 break;
             }
         }
+        updateView();
     }
 
     @Override
     public void decrypt(String data) throws Exception{
-        view.saveConfig(modernSymmetricCipher);
+        currentView.saveConfig(modernSymmetricCipher);
         switch (type) {
             case TEXT_TYPE: {
                 BottomPanel.updateResult(this.modernSymmetricCipher.decryptText(data));
@@ -74,6 +87,7 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
                 break;
             }
         }
+        updateView();
     }
 
     @Override
@@ -124,6 +138,6 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
     }
 
     public void updateView() {
-        this.view.update(this.modernSymmetricCipher);
+        view.values().forEach((v) -> v.update(this.modernSymmetricCipher));
     }
 }

@@ -23,7 +23,6 @@ public class SymmetricCard extends JPanel {
 
     public SymmetricCard() {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-        controller.setView(this);
 
         JPanel groupPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         lblAlgorithm = new JLabel("Thuật toán");

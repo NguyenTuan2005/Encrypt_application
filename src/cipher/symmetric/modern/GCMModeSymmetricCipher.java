@@ -1,13 +1,14 @@
 package cipher.symmetric.modern;
 
-import cipher.FileHelper;
+import utils.FileHelper;
 import enums.SymmetricAlgorithm;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.spec.GCMParameterSpec;
-import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -41,16 +42,36 @@ public class GCMModeSymmetricCipher extends ModernSymmetricCipher {
     }
 
     @Override
-    public void encryptCopy(Cipher cipher, DataOutputStream out) throws IOException, IllegalBlockSizeException, BadPaddingException {
-        out.write(cipher.doFinal(String.valueOf(this.symmetric.getKeySize()).getBytes(StandardCharsets.UTF_8)));
-        byte[] transformation = this.symmetric.getTransformation().getBytes(StandardCharsets.UTF_8);
-        out.write(cipher.doFinal(transformation));
-        out.write(cipher.doFinal(this.symmetric.getSecretKey().getEncoded()));
-        out.write(cipher.doFinal(((GCMParameterSpec) this.symmetric.getIv()).getIV()));
+    public String getIV() {
+        return Base64.getEncoder().encodeToString(((GCMParameterSpec) this.symmetric.getIv()).getIV());
     }
 
     @Override
-    public String getIV() {
-        return Base64.getEncoder().encodeToString(((GCMParameterSpec) this.symmetric.getIv()).getIV());
+    public void encryptCopy(Cipher cipher, DataOutputStream out) throws IOException, IllegalBlockSizeException, BadPaddingException {
+        byte[] encrypted = cipher.doFinal(String.valueOf(this.symmetric.getKeySize()).getBytes(StandardCharsets.UTF_8));
+        out.writeInt(encrypted.length);
+        out.write(encrypted);
+        encrypted = cipher.doFinal(this.symmetric.getTransformation().getBytes(StandardCharsets.UTF_8));
+        out.writeInt(encrypted.length);
+        out.write(encrypted);
+        encrypted = cipher.doFinal(this.symmetric.getSecretKey().getEncoded());
+        out.writeInt(encrypted.length);
+        out.write(encrypted);
+        encrypted = cipher.doFinal(((GCMParameterSpec) this.symmetric.getIv()).getIV());
+        out.writeInt(encrypted.length);
+        out.write(encrypted);
+    }
+
+    @Override
+    public void decryptCopy(Cipher cipher, DataInputStream in) throws IOException, IllegalBlockSizeException, BadPaddingException {
+        byte[] rawKeySize = in.readNBytes(in.readInt());
+        this.symmetric.setKeySize(Integer.parseInt(new String(cipher.doFinal(rawKeySize), StandardCharsets.UTF_8)));
+        byte[] transformation = in.readNBytes(in.readInt());
+        SymmetricAlgorithm sa = findSymmetricAlgorithm(new String(cipher.doFinal(transformation), StandardCharsets.UTF_8));
+        this.symmetric.setSymmetricAlgorithm(sa);
+        byte[] secretKey = in.readNBytes(in.readInt());
+        this.symmetric.setSecretKey(new SecretKeySpec(cipher.doFinal(secretKey), this.symmetric.getAlgorithmName()));
+        byte[] parameterSpec = in.readNBytes(in.readInt());
+        this.symmetric.setAlgorithmParameterSpec(new GCMParameterSpec(128, cipher.doFinal(parameterSpec)));
     }
 }

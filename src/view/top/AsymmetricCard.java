@@ -3,10 +3,12 @@ package view.top;
 import cipher.asymmetric.AsymmetricCipher;
 import controller.EncryptionController;
 import controller.strategy.AsymmetricControllerStrategy;
+import controller.strategy.ModernSymmetricControllerStrategy;
 import view.bottom.BottomPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
@@ -53,10 +55,6 @@ public class AsymmetricCard extends JPanel {
         return 2048;
     }
 
-    public SymmetricCard getSymmetricCard() {
-        return advancePanel.symmetricCard;
-    }
-
     public class Header extends JPanel {
         private JLabel lblConfig;
         private JComboBox<String> cbConfig;
@@ -94,6 +92,7 @@ public class AsymmetricCard extends JPanel {
         private ButtonGroup buttonGroup;
         private JTextField tfPublicKey, tfPrivateKey;
         private JButton btnGenKeyPair, btnImportPublicKey, btnExportPublicKey, btnImportPrivateKey, btnExportPrivateKey;
+        private JFileChooser fileChooser;
 
         public BasicPanel() {
             setLayout(new BoxLayout(BasicPanel.this, BoxLayout.Y_AXIS));
@@ -113,6 +112,7 @@ public class AsymmetricCard extends JPanel {
         }
 
         private void addEvents() {
+            fileChooser = new JFileChooser();
             cbTransformation.addActionListener(e -> {
                 String selected = (String) cbTransformation.getSelectedItem();
                 controller.setAsymmetricCipher(selected);
@@ -127,6 +127,54 @@ public class AsymmetricCard extends JPanel {
                     tfPrivateKey.setText(keypair[1]);
                 } catch (NoSuchAlgorithmException ex) {
                     BottomPanel.updateResult(ex.getMessage());
+                }
+            });
+
+            btnExportPublicKey.addActionListener(e -> {
+                int result = fileChooser.showSaveDialog(BasicPanel.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    try {
+                        controller.exportPublicKey(file);
+                    } catch (Exception ex) {
+                        BottomPanel.updateResult(ex.getMessage());
+                    }
+                }
+            });
+
+            btnImportPublicKey.addActionListener(e -> {
+                int result = fileChooser.showOpenDialog(BasicPanel.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    try {
+                        tfPublicKey.setText(controller.importPublicKey(file));
+                    } catch (Exception ex) {
+                        BottomPanel.updateResult(ex.getMessage());
+                    }
+                }
+            });
+
+            btnExportPrivateKey.addActionListener(e -> {
+                int result = fileChooser.showSaveDialog(BasicPanel.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    try {
+                        controller.exportPrivateKey(file);
+                    } catch (Exception ex) {
+                        BottomPanel.updateResult(ex.getMessage());
+                    }
+                }
+            });
+
+            btnImportPrivateKey.addActionListener(e -> {
+                int result = fileChooser.showOpenDialog(BasicPanel.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    try {
+                        tfPrivateKey.setText(controller.importPrivateKey(file));
+                    } catch (Exception ex) {
+                        BottomPanel.updateResult(ex.getMessage());
+                    }
                 }
             });
         }
@@ -213,7 +261,7 @@ public class AsymmetricCard extends JPanel {
         public AdvancePanel() {
             setLayout(new BoxLayout(AdvancePanel.this, BoxLayout.Y_AXIS));
             symmetricCard = new SymmetricCard();
-            controller.setSymmetricCard(symmetricCard);
+            ModernSymmetricControllerStrategy.setView(symmetricCard);
             add(symmetricCard);
         }
     }

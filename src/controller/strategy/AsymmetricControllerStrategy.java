@@ -1,23 +1,23 @@
 package controller.strategy;
 
-import cipher.FileHelper;
+import utils.FileHelper;
 import cipher.asymmetric.AsymmetricCipher;
 import controller.EncryptionController;
 import enums.AsymmetricAlgorithm;
 import enums.InputType;
 import view.bottom.BottomPanel;
 import view.top.AsymmetricCard;
-import view.top.SymmetricCard;
 
 import java.io.File;
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.security.spec.InvalidKeySpecException;
 
 import static enums.InputType.TEXT_TYPE;
 
 public class AsymmetricControllerStrategy implements CipherControllerStrategy {
     private AsymmetricCipher asymmetricCipher;
     private AsymmetricCard asymmetricCard;
-    private SymmetricCard symmetricCard;
     private InputType inputType = TEXT_TYPE;
 
     public AsymmetricControllerStrategy() {
@@ -26,10 +26,6 @@ public class AsymmetricControllerStrategy implements CipherControllerStrategy {
 
     public void setAsymmetricCard(AsymmetricCard asymmetricCard) {
         this.asymmetricCard = asymmetricCard;
-    }
-
-    public void setSymmetricCard(SymmetricCard symmetricCard) {
-        this.symmetricCard = symmetricCard;
     }
 
     @Override
@@ -45,7 +41,7 @@ public class AsymmetricControllerStrategy implements CipherControllerStrategy {
                 if (!file.isFile()) throw new Exception("Đường dẫn không phải là tệp");
                 ModernSymmetricControllerStrategy modernController =
                         (ModernSymmetricControllerStrategy) EncryptionController.getInstance().get("Modern");
-                this.symmetricCard.saveConfig(modernController.getCipher());
+                ModernSymmetricControllerStrategy.getCurrentView().saveConfig(modernController.getCipher());
 
                 this.asymmetricCipher.encryptFile(modernController.getCipher(), data, file.getParent() + "/ecrypt" + FileHelper.getExtension(file));
 
@@ -69,7 +65,7 @@ public class AsymmetricControllerStrategy implements CipherControllerStrategy {
                 if (!file.isFile()) throw new Exception("Đường dẫn không phải là tệp");
                 ModernSymmetricControllerStrategy modernController =
                         (ModernSymmetricControllerStrategy) EncryptionController.getInstance().get("Modern");
-                this.symmetricCard.saveConfig(modernController.getCipher());
+                ModernSymmetricControllerStrategy.getCurrentView().saveConfig(modernController.getCipher());
 
                 this.asymmetricCipher.decryptFile(modernController.getCipher(), data, file.getParent() + "/decrypt" + FileHelper.getExtension(file));
 
@@ -101,5 +97,27 @@ public class AsymmetricControllerStrategy implements CipherControllerStrategy {
 
     public String[] genKeyPair() throws NoSuchAlgorithmException {
         return this.asymmetricCipher.genKey();
+    }
+
+    public void exportPublicKey(File des) throws IOException {
+        String result ="Đã xuất khóa công khai cho bạn";
+        if (!this.asymmetricCipher.exportPublicKey(des))
+            result = "Không thể xuất khóa công khai cho bạn";
+        BottomPanel.updateResult(result);
+    }
+
+    public String importPublicKey(File src) throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+        return this.asymmetricCipher.importPublicKey(src);
+    }
+
+    public void exportPrivateKey(File des) throws IOException {
+        String result = "Đã xuất khóa riêng tư cho bạn";
+        if (!this.asymmetricCipher.exportPrivateKey(des))
+            result = "Không thể xuất khóa riêng tư cho bạn";
+        BottomPanel.updateResult(result);
+    }
+
+    public String importPrivateKey(File des) throws IOException, InvalidKeySpecException, NoSuchAlgorithmException {
+        return this.asymmetricCipher.importPrivateKey(des);
     }
 }

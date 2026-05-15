@@ -3,6 +3,7 @@ package view.top;
 import controller.EncryptionController;
 import controller.ILanguage;
 import controller.LanguageController;
+import controller.strategy.ModernSymmetricControllerStrategy;
 
 import javax.swing.*;
 import java.awt.*;
@@ -54,10 +55,12 @@ public class HeaderPanel extends JPanel {
         symmetricModernItem.addActionListener(e -> {
             configPanel.showSymmetric();
             controller.setCurrentController("Modern");
+            ModernSymmetricControllerStrategy.setView(1);
         });
         asymmetricItem.addActionListener(e -> {
             configPanel.showAsymmetric();
             controller.setCurrentController("Asymmetric");
+            ModernSymmetricControllerStrategy.setView(2);
         });
         hashItem.addActionListener(e -> {
             configPanel.showHash();
