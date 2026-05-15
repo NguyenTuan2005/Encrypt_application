@@ -1,6 +1,6 @@
 package view.top;
 
-import cipher.symmetric.modern.ModernSymmetric;
+import cipher.symmetric.modern.ModernSymmetricCipher;
 import controller.EncryptionController;
 import controller.strategy.ModernSymmetricControllerStrategy;
 import view.bottom.BottomPanel;
@@ -170,7 +170,7 @@ public class SymmetricCard extends JPanel {
         lblKeySize.setPreferredSize(new Dimension(100, 20));
         keySizePanel.add(lblKeySize);
 
-        rbKeySizes = Arrays.stream(controller.getKeySizes())
+        rbKeySizes = Arrays.stream(controller.findKeySizes())
                 .map(s -> new JRadioButton(s))
                 .toArray(JRadioButton[]::new);
         buttonGroup = new ButtonGroup();
@@ -210,9 +210,9 @@ public class SymmetricCard extends JPanel {
         add(groupPanel);
     }
 
-    public void saveConfig(ModernSymmetric modernSymmetric) {
+    public void saveConfig(ModernSymmetricCipher modernSymmetricCipher) {
         int keySize = getSelectedKeySize();
-        modernSymmetric.setKeySize(keySize);
+        modernSymmetricCipher.setKeySize(keySize);
     }
 
     private int getSelectedKeySize() {
@@ -222,5 +222,17 @@ public class SymmetricCard extends JPanel {
             }
         }
         return 128;
+    }
+
+    public void update(ModernSymmetricCipher modernSymmetricCipher) {
+        tfSecretKey.setText(modernSymmetricCipher.getSecretKey());
+        tfIV.setText(modernSymmetricCipher.getIV());
+        String keySize = String.valueOf(modernSymmetricCipher.getKeySize());
+        for (JRadioButton rb : rbKeySizes) {
+            if (keySize.equals(rb.getText())) {
+                rb.setSelected(true);
+                return;
+            }
+        }
     }
 }

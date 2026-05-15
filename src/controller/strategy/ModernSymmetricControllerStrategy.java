@@ -13,12 +13,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 
 public class ModernSymmetricControllerStrategy implements CipherControllerStrategy {
-    private ModernSymmetric modernSymmetric;
+    private ModernSymmetricCipher modernSymmetricCipher;
     private SymmetricCard view;
     private InputType type = InputType.TEXT_TYPE;
 
     public ModernSymmetricControllerStrategy() {
-        this.modernSymmetric = new ModernSymmetric(SymmetricAlgorithm.AES_CBC_NOPADDING);
+        this.modernSymmetricCipher = new ModernSymmetricCipher(SymmetricAlgorithm.AES_CBC_PKCS5PADDING);
     }
 
     public void setView(SymmetricCard view) {
@@ -26,32 +26,32 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
     }
 
     public void setModernSymmetric(String algorithm) {
-        SymmetricAlgorithm sa = this.modernSymmetric.findSymmetricAlgorithm(algorithm);
+        SymmetricAlgorithm sa = this.modernSymmetricCipher.findSymmetricAlgorithm(algorithm);
         if (sa == null)
             return;
-        this.modernSymmetric = new ModernSymmetric(sa);
+        this.modernSymmetricCipher = new ModernSymmetricCipher(sa);
         if (algorithm.contains("GCM"))
-            this.modernSymmetric = new GCMModeSymmetric(sa);
+            this.modernSymmetricCipher = new GCMModeSymmetricCipher(sa);
         if ("ChaCha20".equals(algorithm))
-            this.modernSymmetric = new ChaCha20Symmetric(sa);
+            this.modernSymmetricCipher = new ChaCha20SymmetricCipher(sa);
         if (sa.getParameterSpecSize() == 0)
-            this.modernSymmetric = new NoIVSymmetric(sa);
+            this.modernSymmetricCipher = new NoIVSymmetricCipher(sa);
         if (algorithm.contains("Camellia") || algorithm.contains("CAST5") || algorithm.contains("KASUMI"))
-            this.modernSymmetric = new BcProviderSymmetric(sa);
+            this.modernSymmetricCipher = new BcProviderSymmetricCipher(sa);
     }
 
     @Override
     public void encrypt(String data) throws Exception{
-        view.saveConfig(modernSymmetric);
+        view.saveConfig(modernSymmetricCipher);
         switch (type) {
             case TEXT_TYPE: {
-                BottomPanel.updateResult(this.modernSymmetric.encryptText(data));
+                BottomPanel.updateResult(this.modernSymmetricCipher.encryptText(data));
                 break;
             }
             case FILE_TYPE: {
                 File file = new File(data);
                 if (!file.isFile()) throw new Exception("Đường dẫn không phải là tệp");
-                this.modernSymmetric.encryptFile(data, file.getParent() + "/encrypt" + FileHelper.getExtension(file));
+                this.modernSymmetricCipher.encryptFile(data, file.getParent() + "/encrypt" + FileHelper.getExtension(file));
                 BottomPanel.updateResult("Đã mã hóa thành công");
                 break;
             }
@@ -60,15 +60,16 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
 
     @Override
     public void decrypt(String data) throws Exception{
+        view.saveConfig(modernSymmetricCipher);
         switch (type) {
             case TEXT_TYPE: {
-                BottomPanel.updateResult(this.modernSymmetric.decryptText(data));
+                BottomPanel.updateResult(this.modernSymmetricCipher.decryptText(data));
                 break;
             }
             case FILE_TYPE: {
                 File file = new File(data);
                 if (!file.isFile()) throw new Exception("Đường dẫn không phải là tệp");
-                this.modernSymmetric.decryptFile(data, file.getParent() + "/decrypt" + FileHelper.getExtension(file));
+                this.modernSymmetricCipher.decryptFile(data, file.getParent() + "/decrypt" + FileHelper.getExtension(file));
                 BottomPanel.updateResult("Đã giải mã thành công");
                 break;
             }
@@ -81,44 +82,48 @@ public class ModernSymmetricControllerStrategy implements CipherControllerStrate
     }
 
     public String[] getAlgorithms() {
-        return this.modernSymmetric.getAlgorithms();
-    }
-
-    public String[] getKeySizes() {
-        return this.modernSymmetric.getKeySizes();
+        return this.modernSymmetricCipher.getAlgorithms();
     }
 
     public String genKey() throws NoSuchAlgorithmException, NoSuchProviderException {
-        return this.modernSymmetric.genKey();
+        return this.modernSymmetricCipher.genKey();
     }
 
     public String genIV() {
-        return this.modernSymmetric.genIV();
+        return this.modernSymmetricCipher.genIV();
     }
 
     public String[] findKeySizes() {
-        return this.modernSymmetric.findKeySizes();
+        return this.modernSymmetricCipher.findKeySizes();
     }
 
     public void exportKey(File des) throws IOException {
         String result ="Đã xuất khóa cho bạn";
-        if (!this.modernSymmetric.exportKey(des))
+        if (!this.modernSymmetricCipher.exportKey(des))
             result = "Không thể xuất khóa cho bạn";
         BottomPanel.updateResult(result);
     }
 
     public String importKey(File src) throws IOException {
-        return this.modernSymmetric.importKey(src);
+        return this.modernSymmetricCipher.importKey(src);
     }
 
     public void exportIV(File des) throws IOException {
         String result = "Đã xuất IV cho bạn";
-        if (!this.modernSymmetric.exportIV(des))
+        if (!this.modernSymmetricCipher.exportIV(des))
             result = "Không thể xuất IV cho bạn";
         BottomPanel.updateResult(result);
     }
 
     public String importIV(File src) throws IOException {
-        return this.modernSymmetric.importIV(src);
+        return this.modernSymmetricCipher.importIV(src);
+    }
+
+    public ModernSymmetricCipher getCipher() {
+        return this.modernSymmetricCipher;
+    }
+
+    public void updateView() {
+        this.view.update(this.modernSymmetricCipher);
     }
 }

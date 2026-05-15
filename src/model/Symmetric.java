@@ -33,10 +33,6 @@ public class Symmetric {
         this.keySize = keySize;
     }
 
-    public int[] getKeySizes() {
-        return algorithm.getKeySizes();
-    }
-
     public int getParameterSpecSize() {
         return algorithm.getParameterSpecSize();
     }
@@ -63,7 +59,7 @@ public class Symmetric {
 
     public String[] findKeySizes() {
         if (this.algorithm == null)
-            return new String[0];
+            return new String[] {"128"};
 
         this.keySize = this.algorithm.getKeySizes()[0];
 
@@ -80,5 +76,9 @@ public class Symmetric {
             }
         }
         return null;
+    }
+
+    public void setSymmetricAlgorithm(SymmetricAlgorithm sa) {
+        this.algorithm = sa;
     }
 }

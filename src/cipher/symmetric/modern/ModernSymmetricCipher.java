@@ -8,6 +8,9 @@ import model.Symmetric;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -18,10 +21,10 @@ import java.security.NoSuchProviderException;
 import java.util.Arrays;
 import java.util.Base64;
 
-public class ModernSymmetric implements TextEncryption, FileEncryption {
+public class ModernSymmetricCipher implements TextEncryption, FileEncryption {
     protected Symmetric symmetric;
 
-    public ModernSymmetric(SymmetricAlgorithm algorithm) {
+    public ModernSymmetricCipher(SymmetricAlgorithm algorithm) {
         this.symmetric = new Symmetric(algorithm);
     }
 
@@ -46,11 +49,23 @@ public class ModernSymmetric implements TextEncryption, FileEncryption {
         FileHelper.copy(src, des, cipher);
     }
 
+    public void encryptFile(String src, DataOutputStream out) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, IOException, BadPaddingException {
+        Cipher cipher = Cipher.getInstance(symmetric.getTransformation());
+        cipher.init(Cipher.ENCRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
+        FileHelper.copy(src, out, cipher);
+    }
+
     @Override
     public void decryptFile(String src, String des) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IOException, IllegalBlockSizeException, BadPaddingException, NoSuchProviderException {
         Cipher cipher = Cipher.getInstance(symmetric.getTransformation());
         cipher.init(Cipher.DECRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
         FileHelper.copy(src, des, cipher);
+    }
+
+    public void decryptFile(DataInputStream in, String des) throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, IllegalBlockSizeException, IOException, BadPaddingException {
+        Cipher cipher = Cipher.getInstance(symmetric.getTransformation());
+        cipher.init(Cipher.DECRYPT_MODE, symmetric.getSecretKey(), symmetric.getIv());
+        FileHelper.copy(in, des, cipher);
     }
 
     @Override
@@ -96,12 +111,6 @@ public class ModernSymmetric implements TextEncryption, FileEncryption {
         return this.symmetric.getAlgorithms();
     }
 
-    public String[] getKeySizes() {
-        return Arrays.stream(this.symmetric.getKeySizes())
-                .mapToObj(String::valueOf)
-                .toArray(String[]::new);
-    }
-
     public String[] findKeySizes() {
         return this.symmetric.findKeySizes();
     }
@@ -112,5 +121,44 @@ public class ModernSymmetric implements TextEncryption, FileEncryption {
 
     public SymmetricAlgorithm findSymmetricAlgorithm(String algorithms) {
         return this.symmetric.findSymmetricAlgorithm(algorithms);
+    }
+
+    public void encryptCopy(Cipher cipher, DataOutputStream out) throws IOException, IllegalBlockSizeException, BadPaddingException {
+        byte[] encrypted = cipher.doFinal(String.valueOf(this.symmetric.getKeySize()).getBytes(StandardCharsets.UTF_8));
+        out.writeInt(encrypted.length);
+        out.write(encrypted);
+        encrypted = cipher.doFinal(this.symmetric.getTransformation().getBytes(StandardCharsets.UTF_8));
+        out.writeInt(encrypted.length);
+        out.write(encrypted);
+        encrypted = cipher.doFinal(this.symmetric.getSecretKey().getEncoded());
+        out.writeInt(encrypted.length);
+        out.write(encrypted);
+        encrypted = cipher.doFinal(((IvParameterSpec) this.symmetric.getIv()).getIV());
+        out.writeInt(encrypted.length);
+        out.write(encrypted);
+    }
+
+    public String getSecretKey() {
+        return Base64.getEncoder().encodeToString(this.symmetric.getSecretKey().getEncoded());
+    }
+
+    public String getIV() {
+        return Base64.getEncoder().encodeToString(((IvParameterSpec) this.symmetric.getIv()).getIV());
+    }
+
+    public int getKeySize() {
+        return this.symmetric.getKeySize();
+    }
+
+    public void decryptCopy(Cipher cipher, DataInputStream in) throws IOException, IllegalBlockSizeException, BadPaddingException {
+        byte[] rawKeySize = in.readNBytes(in.readInt());
+        this.symmetric.setKeySize(Integer.parseInt(new String(cipher.doFinal(rawKeySize), StandardCharsets.UTF_8)));
+        byte[] transformation = in.readNBytes(in.readInt());
+        SymmetricAlgorithm sa = findSymmetricAlgorithm(new String(cipher.doFinal(transformation), StandardCharsets.UTF_8));
+        this.symmetric.setSymmetricAlgorithm(sa);
+        byte[] secretKey = in.readNBytes(in.readInt());
+        this.symmetric.setSecretKey(new SecretKeySpec(cipher.doFinal(secretKey), this.symmetric.getAlgorithmName()));
+        byte[] parameterSpec = in.readNBytes(in.readInt());
+        this.symmetric.setAlgorithmParameterSpec(new IvParameterSpec(cipher.doFinal(parameterSpec)));
     }
 }

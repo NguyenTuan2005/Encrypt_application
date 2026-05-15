@@ -8,6 +8,7 @@ import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.spec.IvParameterSpec;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -16,8 +17,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
-public class NoIVSymmetric extends ModernSymmetric{
-    public NoIVSymmetric(SymmetricAlgorithm algorithm) {
+public class NoIVSymmetricCipher extends ModernSymmetricCipher {
+    public NoIVSymmetricCipher(SymmetricAlgorithm algorithm) {
         super(algorithm);
     }
 
@@ -33,6 +34,11 @@ public class NoIVSymmetric extends ModernSymmetric{
 
     @Override
     public String importKey(File src) {
+        return "Thuật toán này không sử dụng IV";
+    }
+
+    @Override
+    public String getIV() {
         return "Thuật toán này không sử dụng IV";
     }
 
@@ -64,5 +70,13 @@ public class NoIVSymmetric extends ModernSymmetric{
         Cipher cipher = Cipher.getInstance(symmetric.getTransformation());
         cipher.init(Cipher.DECRYPT_MODE, symmetric.getSecretKey());
         FileHelper.copy(src, des, cipher);
+    }
+
+    @Override
+    public void encryptCopy(Cipher cipher, DataOutputStream out) throws IOException, IllegalBlockSizeException, BadPaddingException {
+        out.write(cipher.doFinal(String.valueOf(this.symmetric.getKeySize()).getBytes(StandardCharsets.UTF_8)));
+        byte[] transformation = this.symmetric.getTransformation().getBytes(StandardCharsets.UTF_8);
+        out.write(cipher.doFinal(transformation));
+        out.write(cipher.doFinal(this.symmetric.getSecretKey().getEncoded()));
     }
 }

@@ -4,7 +4,6 @@ import cipher.FileHelper;
 import enums.SymmetricAlgorithm;
 
 import javax.crypto.*;
-import javax.crypto.spec.IvParameterSpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
@@ -13,8 +12,8 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Base64;
 
-public class BcProviderSymmetric extends ModernSymmetric {
-    public BcProviderSymmetric(SymmetricAlgorithm algorithm) {
+public class BcProviderSymmetricCipher extends ModernSymmetricCipher {
+    public BcProviderSymmetricCipher(SymmetricAlgorithm algorithm) {
         super(algorithm);
     }
 

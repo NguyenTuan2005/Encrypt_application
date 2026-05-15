@@ -1,7 +1,14 @@
 package view.top;
 
+import cipher.asymmetric.AsymmetricCipher;
+import controller.EncryptionController;
+import controller.strategy.AsymmetricControllerStrategy;
+import view.bottom.BottomPanel;
+
 import javax.swing.*;
 import java.awt.*;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 public class AsymmetricCard extends JPanel {
     private CardLayout layout;
@@ -9,9 +16,11 @@ public class AsymmetricCard extends JPanel {
     private Header header;
     private BasicPanel basicPanel;
     private AdvancePanel advancePanel;
+    private AsymmetricControllerStrategy controller = (AsymmetricControllerStrategy) EncryptionController.getInstance().get("Asymmetric");
 
     public AsymmetricCard() {
         setLayout(new BorderLayout());
+        controller.setAsymmetricCard(this);
         header = new Header();
         add(header, BorderLayout.NORTH);
 
@@ -28,6 +37,24 @@ public class AsymmetricCard extends JPanel {
 
     public void showCard(String cardName) {
         layout.show(cardPanel, cardName);
+    }
+
+    public void saveConfig(AsymmetricCipher asymmetricCipher) {
+        int keySize = getSelectedKeySize();
+        asymmetricCipher.setKeySize(keySize);
+    }
+
+    private int getSelectedKeySize() {
+        for (JRadioButton rb : basicPanel.rbKeySizes) {
+            if (rb.isSelected()) {
+                return Integer.parseInt(rb.getText());
+            }
+        }
+        return 2048;
+    }
+
+    public SymmetricCard getSymmetricCard() {
+        return advancePanel.symmetricCard;
     }
 
     public class Header extends JPanel {
@@ -63,7 +90,7 @@ public class AsymmetricCard extends JPanel {
     public class BasicPanel extends JPanel {
         private JLabel lblTransformation, lblKeySize, lblKeyPair, lblPublicKey, lblPrivateKey;
         private JComboBox<String> cbTransformation;
-        private JRadioButton radioButton;
+        private JRadioButton[] rbKeySizes;
         private ButtonGroup buttonGroup;
         private JTextField tfPublicKey, tfPrivateKey;
         private JButton btnGenKeyPair, btnImportPublicKey, btnExportPublicKey, btnImportPrivateKey, btnExportPrivateKey;
@@ -75,30 +102,33 @@ public class AsymmetricCard extends JPanel {
             lblTransformation = new JLabel("Thuật toán");
             lblTransformation.setPreferredSize(new Dimension(100, 20));
 
-            cbTransformation = new JComboBox<>(new String[]{"RSA/ECB/PKCS1Padding"});
+            cbTransformation = new JComboBox<>(controller.getTransformations());
             groupPanel.add(lblTransformation);
             groupPanel.add(cbTransformation);
             add(groupPanel);
 
-            groupPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-            lblKeySize = new JLabel("Kích thước khóa");
-            lblKeySize.setPreferredSize(new Dimension(100, 20));
-
-            JPanel buttonPanel = new JPanel();
-            buttonGroup = new ButtonGroup();
-            radioButton = new JRadioButton("1024");
-            radioButton.setSelected(true);
-            buttonGroup.add(radioButton);
-            buttonPanel.add(radioButton);
-
-            radioButton = new JRadioButton("2048");
-            buttonGroup.add(radioButton);
-            buttonPanel.add(radioButton);
-            groupPanel.add(lblKeySize);
-            groupPanel.add(buttonPanel);
-            add(groupPanel);
-
+            initKeySize();
             initKeyPair();
+            addEvents();
+        }
+
+        private void addEvents() {
+            cbTransformation.addActionListener(e -> {
+                String selected = (String) cbTransformation.getSelectedItem();
+                controller.setAsymmetricCipher(selected);
+                tfPrivateKey.setText("");
+                tfPublicKey.setText("");
+            });
+
+            btnGenKeyPair.addActionListener(e -> {
+                try {
+                    String[] keypair = controller.genKeyPair();
+                    tfPublicKey.setText(keypair[0]);
+                    tfPrivateKey.setText(keypair[1]);
+                } catch (NoSuchAlgorithmException ex) {
+                    BottomPanel.updateResult(ex.getMessage());
+                }
+            });
         }
 
         private void initKeyPair() {
@@ -153,6 +183,28 @@ public class AsymmetricCard extends JPanel {
             groupPanel.add(btnExportPrivateKey);
             add(groupPanel);
         }
+
+        private void initKeySize() {
+            String[] keySizes = controller.findKeySizes();
+
+            JPanel groupPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+            buttonGroup = new ButtonGroup();
+            lblKeySize = new JLabel("Kích thước khóa");
+            lblKeySize.setPreferredSize(new Dimension(100, 20));
+            groupPanel.add(lblKeySize);
+
+            rbKeySizes = Arrays.stream(keySizes)
+                    .map(s -> new JRadioButton(s))
+                    .toArray(JRadioButton[]::new);
+
+            for (int i = 0; i < rbKeySizes.length; i++) {
+                JRadioButton rbSize = rbKeySizes[i];
+                if (i == 0) rbSize.setSelected(true);
+                buttonGroup.add(rbSize);
+                groupPanel.add(rbSize);
+            }
+            add(groupPanel);
+        }
     }
 
     public class AdvancePanel extends JPanel {
@@ -161,6 +213,7 @@ public class AsymmetricCard extends JPanel {
         public AdvancePanel() {
             setLayout(new BoxLayout(AdvancePanel.this, BoxLayout.Y_AXIS));
             symmetricCard = new SymmetricCard();
+            controller.setSymmetricCard(symmetricCard);
             add(symmetricCard);
         }
     }
