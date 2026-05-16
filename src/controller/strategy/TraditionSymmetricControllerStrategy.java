@@ -25,6 +25,7 @@ public class TraditionSymmetricControllerStrategy implements CipherControllerStr
                 this.traditionSymmetricCipher = new SubstitutionSymmetricCipher();
                 break;
             case "Affine":
+                this.traditionSymmetricCipher = new AffineSymmetricCipher();
                 break;
             case "Vigenere":
                 this.traditionSymmetricCipher = new VigenereSymmetricCipher();

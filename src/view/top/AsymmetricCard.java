@@ -241,9 +241,10 @@ public class AsymmetricCard extends JPanel {
             lblKeySize.setPreferredSize(new Dimension(100, 20));
             groupPanel.add(lblKeySize);
 
-            rbKeySizes = Arrays.stream(keySizes)
-                    .map(s -> new JRadioButton(s))
-                    .toArray(JRadioButton[]::new);
+            rbKeySizes = new JRadioButton[keySizes.length];
+            for (int i = 0; i < keySizes.length; i++) {
+                rbKeySizes[i] = new JRadioButton(keySizes[i]);
+            }
 
             for (int i = 0; i < rbKeySizes.length; i++) {
                 JRadioButton rbSize = rbKeySizes[i];

@@ -1,7 +1,5 @@
 package enums;
 
-import java.util.Arrays;
-
 public enum AsymmetricAlgorithm {
     RSA_ECB_PKCS1PADDING("RSA/ECB/PKCS1Padding", "RSA", new int[]{1024, 2048}),
     RSA_ECB_OAEP_SHA1_MGF1("RSA/ECB/OAEPWithSHA-1AndMGF1Padding", "RSA", new int[]{1024, 2048}),
@@ -30,8 +28,11 @@ public enum AsymmetricAlgorithm {
     }
 
     public String[] getTransformations() {
-        return Arrays.stream(values())
-                .map(AsymmetricAlgorithm::getTransformation)
-                .toArray(String[]::new);
+        AsymmetricAlgorithm[] values = AsymmetricAlgorithm.values();
+        String[] result = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+            result[i] = String.valueOf(values[i].getTransformation());
+        }
+        return result;
     }
 }

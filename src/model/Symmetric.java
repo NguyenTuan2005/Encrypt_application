@@ -63,9 +63,11 @@ public class Symmetric {
 
         this.keySize = this.algorithm.getKeySizes()[0];
 
-        return Arrays.stream(this.algorithm.getKeySizes())
-                .mapToObj(String::valueOf)
-                .toArray(String[]::new);
+        String[] result = new String[this.algorithm.getKeySizes().length];
+        for (int i = 0; i < this.algorithm.getKeySizes().length; i++) {
+            result[i] = String.valueOf(this.algorithm.getKeySizes()[i]);
+        }
+        return result;
     }
 
     public SymmetricAlgorithm findSymmetricAlgorithm(String algorithm) {

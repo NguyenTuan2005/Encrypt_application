@@ -8,7 +8,6 @@ import view.bottom.BottomPanel;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.util.Arrays;
 
 public class SymmetricCard extends JPanel {
     private JLabel lblAlgorithm, lblSecretKey, lblKeySize, lblIV;
@@ -32,9 +31,9 @@ public class SymmetricCard extends JPanel {
         groupPanel.add(cbAlgorithm);
         add(groupPanel);
 
-        initialSecretKey();
-
         initialKeySize();
+
+        initialSecretKey();
 
         initialIV();
 
@@ -121,9 +120,10 @@ public class SymmetricCard extends JPanel {
         lblKeySize.setPreferredSize(new Dimension(100, 20));
         keySizePanel.add(lblKeySize);
 
-        rbKeySizes = Arrays.stream(keySizes)
-                .map(s -> new JRadioButton(s))
-                .toArray(JRadioButton[]::new);
+        rbKeySizes = new JRadioButton[keySizes.length];
+        for (int i = 0; i < keySizes.length; i++) {
+            rbKeySizes[i] = new JRadioButton(keySizes[i]);
+        }
 
         for (int i = 0; i < rbKeySizes.length; i++) {
             JRadioButton rbSize = rbKeySizes[i];
@@ -169,9 +169,12 @@ public class SymmetricCard extends JPanel {
         lblKeySize.setPreferredSize(new Dimension(100, 20));
         keySizePanel.add(lblKeySize);
 
-        rbKeySizes = Arrays.stream(controller.findKeySizes())
-                .map(s -> new JRadioButton(s))
-                .toArray(JRadioButton[]::new);
+        String[] keySizes = controller.findKeySizes();
+        rbKeySizes = new JRadioButton[keySizes.length];
+        for (int i = 0; i < keySizes.length; i++) {
+            rbKeySizes[i] = new JRadioButton(keySizes[i]);
+        }
+
         buttonGroup = new ButtonGroup();
         for (int i = 0; i < rbKeySizes.length; i++) {
             JRadioButton rbSize = rbKeySizes[i];

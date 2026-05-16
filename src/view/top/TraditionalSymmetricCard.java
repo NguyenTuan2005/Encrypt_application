@@ -100,6 +100,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
                         break;
                     case "Affine":
                         showCard("AFFINE");
+                        currentPanel = affinePanel;
                         break;
                     case "Vigenere":
                         showCard("VIGENERE");
@@ -224,7 +225,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         }
     }
 
-    public class AffinePanel extends JPanel {
+    public class AffinePanel extends JPanel implements CurrentPanel {
         private JLabel lblKeyA, lblKeyB, lblModule;
         private JFormattedTextField tfKeyA, tfKeyB;
         private NumberFormatter formatterKeyA, formatterKeyB;
@@ -286,6 +287,11 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
 
         public void updateNumberFormat() {
             tfModulo.setText(String.valueOf(language.getAlphabetSize()));
+        }
+
+        @Override
+        public void updateConfig(TraditionSymmetricCipher cipher) {
+            cipher.updateConfig(tfKeyA.getText(), tfKeyB.getText(), tfModulo.getText());
         }
     }
 

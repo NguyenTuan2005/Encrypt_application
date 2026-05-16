@@ -1,7 +1,5 @@
 package enums;
 
-import java.util.Arrays;
-
 public enum SymmetricAlgorithm {
 
     AES_CBC_PKCS5PADDING("AES/CBC/PKCS5Padding", "AES", new int[]{128, 192, 256}, 16),
@@ -41,9 +39,12 @@ public enum SymmetricAlgorithm {
     }
 
     public String[] getAlgorithms() {
-        return Arrays.stream(values())
-                .map(SymmetricAlgorithm::getTransformation)
-                .toArray(String[]::new);
+        SymmetricAlgorithm[] values = SymmetricAlgorithm.values();
+        String[] result = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+            result[i] = String.valueOf(values[i].getTransformation());
+        }
+        return result;
     }
 
     public String getAlgorithm() {

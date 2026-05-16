@@ -2,8 +2,6 @@ package model;
 
 import enums.HashAlgorithm;
 
-import java.util.Arrays;
-
 public class Hash {
     private HashAlgorithm algorithm;
 
@@ -16,9 +14,12 @@ public class Hash {
     }
 
     public String[] getAlgorithms() {
-        return Arrays.stream(HashAlgorithm.values())
-                .map(HashAlgorithm::getAlgorithm)
-                .toArray(String[]::new);
+        HashAlgorithm[] values = HashAlgorithm.values();
+        String[] result = new String[values.length];
+        for (int i = 0; i < values.length; i++) {
+            result[i] = String.valueOf(values[i].getAlgorithm());
+        }
+        return result;
     }
 
     public HashAlgorithm findHashAlgorithm(String algorithm) {
