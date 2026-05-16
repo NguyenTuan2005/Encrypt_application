@@ -5,11 +5,13 @@ import controller.EncryptionController;
 import controller.strategy.TraditionSymmetricControllerStrategy;
 import model.ILanguageModel;
 import model.Observer;
+import view.bottom.BottomPanel;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.*;
 import java.awt.*;
+import java.io.File;
 import java.text.NumberFormat;
 
 public class TraditionalSymmetricCard extends JPanel implements Observer {
@@ -94,12 +96,14 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
                         break;
                     case "Mã hóa thay thế":
                         showCard("SUBSTITUTION");
+                        currentPanel = substitutionPanel;
                         break;
                     case "Affine":
                         showCard("AFFINE");
                         break;
                     case "Vigenere":
                         showCard("VIGENERE");
+                        currentPanel = vigenerePanel;
                         break;
                     case "Hill":
                         showCard("HILL");
@@ -149,10 +153,11 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         }
     }
 
-    public class SubstitutionPanel extends JPanel {
+    public class SubstitutionPanel extends JPanel implements CurrentPanel {
         private JLabel lblMapKey;
         private JTextField tfMapKey;
-        private JButton btnGenMapKey, btnImportMapKey;
+        private JButton btnGenMapKey, btnImportMapKey, btnExportMapKey;
+        private JFileChooser fileChooser;
 
         public SubstitutionPanel() {
             setLayout(new BoxLayout(SubstitutionPanel.this, BoxLayout.Y_AXIS));
@@ -171,10 +176,50 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
             groupPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
             btnGenMapKey = new JButton("Tạo");
             btnImportMapKey = new JButton("Chèn");
+            btnExportMapKey = new JButton("Xuất");
             groupPanel.add(Box.createHorizontalStrut(100));
             groupPanel.add(btnGenMapKey);
             groupPanel.add(btnImportMapKey);
+            groupPanel.add(btnExportMapKey);
             add(groupPanel);
+
+            addEvent();
+        }
+
+        private void addEvent() {
+            fileChooser = new JFileChooser();
+            btnGenMapKey.addActionListener(e -> {
+                tfMapKey.setText(controller.genKey());
+            });
+
+            btnExportMapKey.addActionListener(e -> {
+                int result = fileChooser.showSaveDialog(SubstitutionPanel.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    try {
+                        BottomPanel.updateResult(controller.exportKey(file));
+                    } catch (Exception ex) {
+                        BottomPanel.updateResult(ex.getMessage());
+                    }
+                }
+            });
+
+            btnImportMapKey.addActionListener(e -> {
+                int result = fileChooser.showOpenDialog(SubstitutionPanel.this);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    try {
+                        tfMapKey.setText(controller.importKey(file));
+                    } catch (Exception ex) {
+                        BottomPanel.updateResult(ex.getMessage());
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void updateConfig(TraditionSymmetricCipher cipher) {
+            cipher.updateConfig(tfMapKey.getText());
         }
     }
 
@@ -243,7 +288,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         }
     }
 
-    public class VigenerePanel extends JPanel {
+    public class VigenerePanel extends JPanel implements CurrentPanel {
         private JLabel lblKeyword;
         private JTextField tfKeyword;
 
@@ -257,9 +302,34 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
             lblKeyword.setPreferredSize(new Dimension(100, 20));
 
             tfKeyword = new JTextField("");
+            AbstractDocument document = (AbstractDocument) tfKeyword.getDocument();
+            document.setDocumentFilter(new DocumentFilter() {
+                @Override
+                public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                    String filtered = controller.filterValid(string);
+                    if (!filtered.isEmpty()) {
+                        super.insertString(fb, offset, filtered, attr);
+                    }
+                }
+
+                @Override
+                public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                    String filtered = controller.filterValid(text);
+                    int textlength = filtered.length();
+                    int newLength = fb.getDocument().getLength() - length + textlength;
+                    if (newLength >= 0) {
+                        super.replace(fb, offset, length, filtered, attrs);
+                    }
+                }
+            });
             groupPanel.add(lblKeyword, BorderLayout.WEST);
             groupPanel.add(tfKeyword, BorderLayout.CENTER);
             add(groupPanel);
+        }
+
+        @Override
+        public void updateConfig(TraditionSymmetricCipher cipher) {
+            cipher.updateConfig(tfKeyword.getText());
         }
     }
 

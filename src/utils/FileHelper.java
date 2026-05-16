@@ -132,4 +132,20 @@ public class FileHelper {
         KeyFactory keyFactory = KeyFactory.getInstance(algorithm);
         return keyFactory.generatePrivate(keySpec);
     }
+
+    public static String importTraditionKey(File src) throws IOException {
+        BufferedReader in = new BufferedReader(new FileReader(src));
+        String key = in.readLine();
+        in.close();
+
+        return key;
+    }
+
+    public static void exportTraditionKey(String key, File des) throws FileNotFoundException {
+        String result = des.isDirectory() ? des.getPath() + "/tradition.txt" : des.getPath();
+        PrintWriter out = new PrintWriter(result);
+        out.write(key);
+        out.flush();
+        out.close();
+    }
 }

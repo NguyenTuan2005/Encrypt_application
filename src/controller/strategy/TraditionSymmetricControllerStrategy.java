@@ -1,10 +1,15 @@
 package controller.strategy;
 
 import cipher.symmetric.tradition.ShiftSymmetricCipher;
+import cipher.symmetric.tradition.SubstitutionSymmetricCipher;
 import cipher.symmetric.tradition.TraditionSymmetricCipher;
+import cipher.symmetric.tradition.VigenereSymmetricCipher;
 import enums.InputType;
 import view.bottom.BottomPanel;
 import view.top.TraditionalSymmetricCard;
+
+import java.io.File;
+import java.io.IOException;
 
 public class TraditionSymmetricControllerStrategy implements CipherControllerStrategy {
     private TraditionSymmetricCipher traditionSymmetricCipher;
@@ -20,10 +25,12 @@ public class TraditionSymmetricControllerStrategy implements CipherControllerStr
                 this.traditionSymmetricCipher = new ShiftSymmetricCipher(3);
                 break;
             case "Mã hóa thay thế":
+                this.traditionSymmetricCipher = new SubstitutionSymmetricCipher();
                 break;
             case "Affine":
                 break;
             case "Vigenere":
+                this.traditionSymmetricCipher = new VigenereSymmetricCipher();
                 break;
             case "Hill":
                 break;
@@ -50,5 +57,21 @@ public class TraditionSymmetricControllerStrategy implements CipherControllerStr
 
     public void setView(TraditionalSymmetricCard traditionalSymmetricCard) {
         this.view = traditionalSymmetricCard;
+    }
+
+    public String genKey() {
+        return this.traditionSymmetricCipher.genKey();
+    }
+
+    public String exportKey(File des) throws IOException {
+        return this.traditionSymmetricCipher.exportKey(des);
+    }
+
+    public String importKey(File src) throws IOException {
+        return this.traditionSymmetricCipher.importKey(src);
+    }
+
+    public String filterValid(String text) {
+        return this.traditionSymmetricCipher.filterValid(text);
     }
 }

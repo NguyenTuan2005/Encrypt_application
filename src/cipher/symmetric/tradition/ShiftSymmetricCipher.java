@@ -14,7 +14,7 @@ public class ShiftSymmetricCipher extends TraditionSymmetricCipher {
         int index = -1;
         char cipherChar;
         if (plainText == null) return result.toString();
-        if (language.containInvalidAlphabet(plainText)) return "Ngôn ngữ hỗ trợ mã hóa không đúng";
+        if (!language.containValidAlphabet(plainText)) return "Ngôn ngữ hỗ trợ mã hóa không đúng";
 
         char[] textChar = plainText.toCharArray();
         for (int i = 0; i < textChar.length; i++) {
@@ -50,7 +50,7 @@ public class ShiftSymmetricCipher extends TraditionSymmetricCipher {
         int index = -1;
         char cipherChar;
         if (cipherText == null) return result.toString();
-        if (language.containInvalidAlphabet(cipherText)) return "Ngôn ngữ hỗ trợ mã hóa không đúng";
+        if (!language.containValidAlphabet(cipherText)) return "Ngôn ngữ hỗ trợ mã hóa không đúng";
 
         char[] textChar = cipherText.toCharArray();
         for (int i = 0; i < textChar.length; i++) {

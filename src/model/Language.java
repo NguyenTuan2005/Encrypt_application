@@ -68,13 +68,13 @@ public class Language implements ILanguageModel {
         return false;
     }
 
-    public boolean containInvalidAlphabet(String plainText) {
+    public boolean containValidAlphabet(String plainText) {
         plainText = plainText.toUpperCase(Locale.ROOT);
         for (char c : plainText.toCharArray()) {
             if (!Character.isLetter(c)) continue;
-            return !contains(c);
+            if (!contains(c)) return false;
         }
-        return false;
+        return true;
     }
 
     public int getIndexOf(char c) {
@@ -107,5 +107,17 @@ public class Language implements ILanguageModel {
 
     public int getIndexDigitOf(char c) {
         return NUMBER_VALUE.indexOf(c);
+    }
+
+    public String getAlphabet() {
+        switch (currentAlphabet) {
+            case "ENGLISH": {
+                return ENGLISH_ALPHABET;
+            }
+            case "VIETNAM": {
+                return VIETNAM_ALPHABET;
+            }
+        }
+        return null;
     }
 }
