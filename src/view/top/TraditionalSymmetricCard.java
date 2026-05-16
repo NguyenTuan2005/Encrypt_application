@@ -110,6 +110,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
                         break;
                     case "Mã hóa hoán vị":
                         showCard("PERMUTATION");
+                        currentPanel = permutationPanel;
                         break;
                 }
                 controller.setTraditionSymmetricCipher(selected);
@@ -450,7 +451,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         }
     }
 
-    public class PermutationPanel extends JPanel {
+    public class PermutationPanel extends JPanel implements CurrentPanel {
         private JLabel lblBlockSize, lblKey, lblPaddingChar;
         private JFormattedTextField tfBlockSize;
         private NumberFormatter formatterBlockSize;
@@ -489,6 +490,30 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
 
             tfKey = new JTextField("");
             tfKey.setColumns(12);
+            AbstractDocument document = (AbstractDocument) tfKey.getDocument();
+            document.setDocumentFilter(new DocumentFilter() {
+                @Override
+                public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                    String filtered = controller.filterValid(string);
+                    int blockSize = Integer.parseInt(tfBlockSize.getText());
+                    if (filtered.length() <= blockSize) {
+                        super.insertString(fb, offset, filtered, attr);
+                    }
+                }
+
+                @Override
+                public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                    String filtered = controller.filterValid(text);
+                    int blockSize = Integer.parseInt(tfBlockSize.getText());
+                    int currentLength = fb.getDocument().getLength() - length;
+                    int availableSpace = blockSize - currentLength;
+
+                    if (availableSpace > 0 && !filtered.isEmpty()) {
+                        String subFiltered = filtered.substring(0, Math.min(filtered.length(), availableSpace));
+                        super.replace(fb, offset, length, subFiltered, attrs);
+                    }
+                }
+            });
             groupPanel.add(lblKey);
             groupPanel.add(tfKey);
             add(groupPanel);
@@ -502,7 +527,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
 
             tfPaddingChar = new JTextField("X");
             tfPaddingChar.setPreferredSize(new Dimension(50, 25));
-            AbstractDocument document = (AbstractDocument) tfPaddingChar.getDocument();
+            document = (AbstractDocument) tfPaddingChar.getDocument();
             document.setDocumentFilter(new DocumentFilter() {
                 @Override
                 public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
@@ -524,6 +549,11 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
             groupPanel.add(lblPaddingChar);
             groupPanel.add(tfPaddingChar);
             add(groupPanel);
+        }
+
+        @Override
+        public void updateConfig(TraditionSymmetricCipher cipher) {
+            cipher.updateConfig(tfBlockSize.getText(), tfKey.getText(), tfPaddingChar.getText());
         }
     }
 }

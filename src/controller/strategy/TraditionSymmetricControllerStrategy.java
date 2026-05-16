@@ -1,9 +1,6 @@
 package controller.strategy;
 
-import cipher.symmetric.tradition.ShiftSymmetricCipher;
-import cipher.symmetric.tradition.SubstitutionSymmetricCipher;
-import cipher.symmetric.tradition.TraditionSymmetricCipher;
-import cipher.symmetric.tradition.VigenereSymmetricCipher;
+import cipher.symmetric.tradition.*;
 import enums.InputType;
 import view.bottom.BottomPanel;
 import view.top.TraditionalSymmetricCard;
@@ -35,6 +32,7 @@ public class TraditionSymmetricControllerStrategy implements CipherControllerStr
             case "Hill":
                 break;
             case "Mã hóa hoán vị":
+                this.traditionSymmetricCipher = new PermutationSymmetricCipher();
                 break;
         }
     }

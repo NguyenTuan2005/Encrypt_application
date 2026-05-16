@@ -86,4 +86,16 @@ public class VigenereSymmetricCipher extends TraditionSymmetricCipher {
         }
         return result.toString();
     }
+
+    @Override
+    public String filterValid(String text) {
+        if (text == null) return "";
+        StringBuilder filtered = new StringBuilder();
+        for (char c : text.toCharArray()) {
+            if (Character.isLetter(c) && language.contains(Character.toUpperCase(c))) {
+                filtered.append(c);
+            }
+        }
+        return filtered.toString();
+    }
 }
