@@ -1,10 +1,11 @@
 package model;
 
 public interface ILanguageModel extends Observable{
-    int ENGLISH_ALPHABET_SIZE = 26;
-    int VIETNAM_ALPHABET_SIZE = 256;
     String ENGLISH_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    String VIETNAM_ALPHABET = "AĂÂBCĐDEÊGHIKLMNOÔƠPQRSTUƯVXYZÁÀẢÃẠĂẮẰẲẴẶÂẤẦẨẪẬÉÈẺẼẸÊẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌÔỐỒỔỖỘƠỚỜỞỡỢÚÙỦŨỤƯỨỪỬỮỰÝỲỶỸỴ";
+    int ENGLISH_ALPHABET_SIZE = ENGLISH_ALPHABET.length();
+    String VIETNAM_ALPHABET = "AĂÂBCĐDEÊGHIKLMNOÔƠPQRSTUƯVXYZÁÀẢÃẠẮẰẲẴẶẤẦẨẪẬÉÈẺẼẸẾỀỂỄỆÍÌỈĨỊÓÒỎÕỌỐỒỔỖỘỚỜỞỠỢÚÙỦŨỤỨỪỬỮỰÝỲỶỸỴ";
+    int VIETNAM_ALPHABET_SIZE = VIETNAM_ALPHABET.length();
+    String NUMBER_VALUE = "0123456789";
 
     void setEnglish();
     void setVietnamese();

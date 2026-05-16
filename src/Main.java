@@ -20,6 +20,8 @@ public class Main {
         controller.put("Hash", new HashControllerStrategy());
         controller.put("Tradition", new TraditionSymmetricControllerStrategy());
 
+        controller.setCurrentController("Tradition");
+
         EncryptApplication encryptApplication = new EncryptApplication();
         encryptApplication.showApp();
     }

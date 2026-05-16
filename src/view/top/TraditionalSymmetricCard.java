@@ -1,5 +1,8 @@
 package view.top;
 
+import cipher.symmetric.tradition.TraditionSymmetricCipher;
+import controller.EncryptionController;
+import controller.strategy.TraditionSymmetricControllerStrategy;
 import model.ILanguageModel;
 import model.Observer;
 
@@ -20,9 +23,12 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
     private HillPanel hillPanel;
     private PermutationPanel permutationPanel;
     private ILanguageModel language;
+    private TraditionSymmetricControllerStrategy controller = (TraditionSymmetricControllerStrategy) EncryptionController.getInstance().get("Tradition");
+    private CurrentPanel currentPanel;
 
     public TraditionalSymmetricCard(ILanguageModel language) {
         this.language = language;
+        controller.setView(this);
         setLayout(new BorderLayout());
         header = new Header();
         add(header, BorderLayout.NORTH);
@@ -36,6 +42,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         vigenerePanel = new VigenerePanel();
         hillPanel = new HillPanel();
         permutationPanel = new PermutationPanel();
+        currentPanel = caesarPanel;
 
         cardPanel.add(caesarPanel, "CAESAR");
         cardPanel.add(substitutionPanel, "SUBSTITUTION");
@@ -57,6 +64,14 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
         hillPanel.updateNumberFormat();
     }
 
+    public void updateConfig(TraditionSymmetricCipher traditionSymmetricCipher) {
+        this.currentPanel.updateConfig(traditionSymmetricCipher);
+    }
+
+    public interface CurrentPanel {
+        void updateConfig(TraditionSymmetricCipher cipher);
+    }
+
     public class Header extends JPanel {
         private JLabel lblMethod;
         private JComboBox<String> cbMethod;
@@ -75,6 +90,7 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
                 switch (selected) {
                     case "Mã hóa dịch chuyển":
                         showCard("CAESAR");
+                        currentPanel = caesarPanel;
                         break;
                     case "Mã hóa thay thế":
                         showCard("SUBSTITUTION");
@@ -92,12 +108,13 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
                         showCard("PERMUTATION");
                         break;
                 }
+                controller.setTraditionSymmetricCipher(selected);
             });
             add(cbMethod);
         }
     }
 
-    public class CaesarPanel extends JPanel {
+    public class CaesarPanel extends JPanel implements CurrentPanel{
         private JLabel lblShift;
         private JFormattedTextField tfShift;
         private NumberFormatter formatter;
@@ -124,6 +141,11 @@ public class TraditionalSymmetricCard extends JPanel implements Observer {
 
         public void updateNumberFormat() {
             formatter.setMaximum(language.getAlphabetSize() - 1);
+        }
+
+        @Override
+        public void updateConfig(TraditionSymmetricCipher cipher) {
+            cipher.updateConfig(tfShift.getText());
         }
     }
 
